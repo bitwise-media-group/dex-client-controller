@@ -35,3 +35,11 @@ hide = true
 dir = "{{cwd}}"
 env = { TOOLCHAIN_GOOS = "{{vars.goos}}" }
 run = "./hack/test.sh"
+
+# The e2e suite is a separate module (e2e/): it boots an envtest
+# kube-apiserver, builds and runs a real dex (memory storage, mTLS gRPC) and
+# the real controller binary, and drives them through the CRDs.
+[e2e]
+description = "run the end-to-end suite (envtest, real dex, real controller binary)"
+dir = "{{cwd}}"
+run = "./hack/e2e.sh"
