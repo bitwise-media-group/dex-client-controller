@@ -1,0 +1,6 @@
+.git/**
+dist/**
+bin/**
+commit.sh
+docs/**
+site/**

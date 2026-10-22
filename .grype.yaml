@@ -1,0 +1,12 @@
+# Copyright 2026 BitWise Media Group Ltd
+# SPDX-License-Identifier: MIT
+
+# Triage for the lint-docker grype gate (.mise/common/scripts/lint-docker.sh),
+# which scans the external base image named in the Dockerfile's FROM line.
+#
+# Empty: the distroless static base carries no package with a fixable
+# finding. When a base-image finding must be accepted, add an ignore rule here
+# pinned to the vulnerable version and its path — so a reintroduction
+# anywhere else still fails the gate — with a comment saying why it is
+# acceptable and when to delete it.
+ignore: []

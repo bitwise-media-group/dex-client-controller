@@ -1,0 +1,19 @@
+# build artifacts
+/bin/
+/dex-client-controller
+dist/
+
+# docs site (zensical) build output + python env
+/site/
+/.cache/
+/.venv/
+
+# coverage (make test)
+coverage/
+
+# claude code
+/.claude/**
+!/.claude/settings.json
+
+# node modules
+node_modules/

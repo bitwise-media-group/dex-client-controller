@@ -1,0 +1,48 @@
+# Copyright 2026 BitWise Media Group Ltd
+# SPDX-License-Identifier: MIT
+#
+# dex-client-controller consumes the shared toolchain
+# (bitwise-media-group/toolchain) as the .mise/ submodule: pinned tools come
+# from its config.toml (loaded natively as .mise/config.toml), the shared tasks
+# from common/ and the go archetype, and the Makefile is a thin forwarder
+# (.mise/archetypes/go/include.mk). The Go runtime, govulncheck and the
+# repo-local tools are pinned below (locked in mise.lock); structural knobs
+# live in [vars]; repo-local tasks live in tasks.toml (see [task_config]
+# below).
+
+[settings]
+lockfile = true
+locked = true
+minimum_release_age = "7d"
+
+[vars]
+app = "dex-client-controller"
+app_pkg = "./cmd/dex-client-controller"
+
+[task_config]
+# common first, then exactly one archetype, then the repo-local tasks.toml —
+# included AFTER the archetype so its same-named tasks (go-lint, go-test)
+# replace the archetype's definitions (later includes win whole-task, and an
+# included file also beats this config's own [tasks] on name collisions).
+includes = [
+  ".mise/common/tasks.toml",
+  ".mise/archetypes/go/tasks.toml",
+  "tasks.toml",
+]
+
+# The Go runtime and govulncheck (go-installed by that same Go): the toolchain
+# leaves both to each Go repo. The rest are repo-local tool pins the shared
+# toolchain doesn't carry: the Kubernetes code/CRD generator and the envtest
+# binary manager for api/v1alpha1. controller-gen floats on its own release
+# line; setup-envtest tracks the controller-runtime minor pinned in go.mod
+# (v0.25.x). yq is on hand for the codegen script. buildx is what goreleaser's
+# dockers_v2 drives for `mise run snapshot`; docker only finds CLI plugins in
+# its plugin dirs, never on PATH, so the postinstall links it into
+# ~/.docker/cli-plugins (or $DOCKER_CONFIG/cli-plugins).
+[tools]
+"aqua:docker/buildx" = { version = "0.38.0", postinstall = 'dir="${DOCKER_CONFIG:-$HOME/.docker}/cli-plugins" && mkdir -p "$dir" && ln -sf "$MISE_TOOL_INSTALL_PATH/docker-cli-plugin-docker-buildx" "$dir/docker-buildx"' }
+go = "1.27.2"
+"go:golang.org/x/vuln/cmd/govulncheck" = "1.8.0"
+"go:sigs.k8s.io/controller-tools/cmd/controller-gen" = "v0.22.0"
+"go:sigs.k8s.io/controller-runtime/tools/setup-envtest" = "v0.25.2"
+"aqua:mikefarah/yq" = "4.54.1"

@@ -1,0 +1,12 @@
+# Copyright 2026 BitWise Media Group Ltd
+# SPDX-License-Identifier: MIT
+#
+# ---- repo-local tasks (the long tail the library intentionally omits) -------
+
+# Overrides the archetype's go-lint (golangci-lint plus a bare govulncheck):
+# govulncheck runs through hack/govulncheck.sh so it can carry a reviewed
+# acceptance list for advisories with no usable fix yet (see the script).
+[go-lint]
+hide = true
+dir = "{{cwd}}"
+run = ["golangci-lint run", "./hack/govulncheck.sh"]
