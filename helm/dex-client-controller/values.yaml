@@ -1,0 +1,125 @@
+# Copyright 2026 BitWise Media Group Ltd
+# SPDX-License-Identifier: MIT
+
+# The controller image goreleaser publishes. `tag` defaults to v<appVersion>;
+# a `digest` pins the image and beats any tag.
+image:
+    repository: ghcr.io/bitwise-media-group/dex-client-controller
+    tag: ""
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+# The dex.bitwisemedia.uk CRDs (DexClient, DexConnector). They render as
+# templates (not the crds/ directory) so upgrades track schema changes; `keep`
+# stamps helm.sh/resource-policy: keep so uninstalling the chart never deletes
+# the CRDs — and with them every DexClient and DexConnector in the cluster.
+crds:
+    install: true
+    keep: true
+
+# Extra labels / annotations stamped on every object the chart renders.
+# Per-object annotations (podAnnotations, serviceAccount.annotations, ...) win
+# key-by-key.
+commonLabels: {}
+commonAnnotations: {}
+
+# The one dex this controller manages, reached through its gRPC API. dex's
+# API has no authentication beyond TLS client certificates, so the controller
+# dials with mTLS: see NOTES.txt for the matching dex configuration.
+dex:
+    # dex's grpc.addr as seen from this namespace, host:port — e.g. the dex
+    # chart's Service in namespace dex.
+    address: dex.dex.svc.cluster.local:5557
+    # dex's issuer URL. Optional: when set it is written into every
+    # generated client Secret (key `issuer`) alongside clientID/clientSecret.
+    issuer: ""
+    # Name verified in dex's serving certificate; empty uses the host part of
+    # `address`.
+    serverName: ""
+    # Dial without TLS. Development only: anyone reaching dex's gRPC port can
+    # then administer it.
+    insecure: false
+    tls:
+        # Secret with ca.crt (verifies dex's serving certificate), tls.crt and
+        # tls.key (the client certificate, signed by dex's tlsClientCA) — the
+        # shape a cert-manager Certificate writes. Mounted read-only and
+        # re-read on reconnect, so rotation needs no restart. Default:
+        # <fullname>-dex-tls.
+        secretName: ""
+
+# Namespaces whose DexClients/DexConnectors this controller reconciles.
+# Empty watches the whole cluster (one ClusterRoleBinding); a list binds the
+# controller's ClusterRole into just those namespaces with RoleBindings.
+watchNamespaces: []
+
+# How often every object is re-reconciled against dex. dex emits no change
+# events, so this is what repairs drift — e.g. a dex on memory storage that
+# restarted and forgot every client.
+resyncPeriod: 5m
+
+# slog level for the controller's stderr logger: debug, info, warn, error.
+logLevel: info
+
+serviceAccount:
+    create: true
+    # Defaults to <fullname>.
+    name: ""
+    annotations: {}
+
+rbac:
+    # Aggregate DexClient permissions into the built-in view/edit/admin
+    # ClusterRoles, so namespace editors can self-serve clients. DexConnector
+    # is aggregated into `view` only: a connector changes how everyone logs
+    # in, so writing one stays with cluster administrators unless granted
+    # explicitly (see NOTES.txt).
+    aggregateToDefaultRoles: true
+
+resources:
+    requests:
+        cpu: 10m
+        memory: 64Mi
+    limits:
+        cpu: 500m
+        memory: 256Mi
+
+podAnnotations: {}
+podLabels: {}
+priorityClassName: ""
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+metrics:
+    # controller-runtime's Prometheus metrics on :8080, exposed by a
+    # ClusterIP Service.
+    enabled: true
+    service:
+        annotations: {}
+    serviceMonitor:
+        # Requires the Prometheus Operator CRDs.
+        enabled: false
+        interval: 30s
+        labels: {}
+
+networkPolicy:
+    # Default-deny ingress and egress for the controller pod, allowing only
+    # what it needs: DNS, the Kubernetes API, dex's gRPC port, and metrics
+    # scrapes.
+    enabled: false
+    # Where dex runs. Empty selectors allow dex's port to any destination.
+    dex:
+        port: 5557
+        namespaceSelector: {}
+        podSelector: {}
+    # The Kubernetes API server cannot be selected by labels; allow its
+    # ports, optionally narrowed to its addresses.
+    apiServer:
+        ports: [443, 6443]
+        cidrs: []
+    # Peers (NetworkPolicyPeer entries) allowed to scrape metrics. Empty
+    # allows any source.
+    metricsFrom: []

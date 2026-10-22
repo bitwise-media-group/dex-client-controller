@@ -1,0 +1,154 @@
+# Copyright 2026 BitWise Media Group Ltd
+# SPDX-License-Identifier: MIT
+#
+# A singleton with strategy Recreate, on purpose: the binary runs leader
+# election (a coordination.k8s.io Lease) as insurance against a botched
+# rollout racing two replicas, but one replica is the deployment model.
+#
+# The only credential mounted is the mTLS client certificate for dex's gRPC
+# API. Client and connector secrets live in the Secrets the CRs reference and
+# are read on demand through the Kubernetes API, never cached.
+{{- if and (not .Values.dex.insecure) (not .Values.dex.address) }}
+{{- fail "dex.address is required" }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: {{ include "dcc.fullname" . }}
+    namespace: {{ .Release.Namespace }}
+    labels:
+        {{- include "dcc.labels" . | nindent 8 }}
+    {{- with include "dcc.annotations" (dict "root" $) }}
+    annotations:
+        {{- . | nindent 8 }}
+    {{- end }}
+spec:
+    replicas: 1
+    strategy:
+        type: Recreate
+    selector:
+        matchLabels:
+            {{- include "dcc.selectorLabels" . | nindent 12 }}
+    template:
+        metadata:
+            labels:
+                {{- include "dcc.labels" . | nindent 16 }}
+                {{- with .Values.podLabels }}
+                {{- toYaml . | nindent 16 }}
+                {{- end }}
+            {{- with include "dcc.annotations" (dict "root" $ "extra" .Values.podAnnotations) }}
+            annotations:
+                {{- . | nindent 16 }}
+            {{- end }}
+        spec:
+            serviceAccountName: {{ include "dcc.serviceAccountName" . }}
+            {{- with .Values.image.pullSecrets }}
+            imagePullSecrets:
+                {{- toYaml . | nindent 16 }}
+            {{- end }}
+            {{- with .Values.priorityClassName }}
+            priorityClassName: {{ . }}
+            {{- end }}
+            securityContext:
+                runAsNonRoot: true
+                runAsUser: 65532
+                runAsGroup: 65532
+                fsGroup: 65532
+                seccompProfile:
+                    type: RuntimeDefault
+            containers:
+                - name: controller
+                  image: {{ include "dcc.image" . }}
+                  imagePullPolicy: {{ .Values.image.pullPolicy }}
+                  args:
+                      - serve
+                      - --log-level={{ .Values.logLevel }}
+                      - --dex-address={{ .Values.dex.address }}
+                      {{- if .Values.dex.insecure }}
+                      - --dex-insecure
+                      {{- else }}
+                      - --dex-ca-file=/etc/dex-client-controller/dex-tls/ca.crt
+                      - --dex-cert-file=/etc/dex-client-controller/dex-tls/tls.crt
+                      - --dex-key-file=/etc/dex-client-controller/dex-tls/tls.key
+                      {{- end }}
+                      {{- with .Values.dex.serverName }}
+                      - --dex-server-name={{ . }}
+                      {{- end }}
+                      {{- with .Values.dex.issuer }}
+                      - --dex-issuer={{ . }}
+                      {{- end }}
+                      {{- with .Values.watchNamespaces }}
+                      - --watch-namespaces={{ join "," . }}
+                      {{- end }}
+                      - --resync-period={{ .Values.resyncPeriod }}
+                      - --health-addr=:8081
+                      {{- if .Values.metrics.enabled }}
+                      - --metrics-addr=:8080
+                      {{- else }}
+                      - --metrics-addr=
+                      {{- end }}
+                  env:
+                      - name: POD_NAMESPACE
+                        valueFrom:
+                            fieldRef:
+                                fieldPath: metadata.namespace
+                  ports:
+                      {{- if .Values.metrics.enabled }}
+                      - name: metrics
+                        containerPort: 8080
+                        protocol: TCP
+                      {{- end }}
+                      - name: health
+                        containerPort: 8081
+                        protocol: TCP
+                  livenessProbe:
+                      httpGet:
+                          path: /healthz
+                          port: health
+                      initialDelaySeconds: 5
+                      periodSeconds: 20
+                  # /readyz includes a GetVersion call to dex: the pod reports
+                  # not-ready while dex is unreachable.
+                  readinessProbe:
+                      httpGet:
+                          path: /readyz
+                          port: health
+                      initialDelaySeconds: 2
+                      periodSeconds: 10
+                  {{- with .Values.resources }}
+                  resources:
+                      {{- toYaml . | nindent 22 }}
+                  {{- end }}
+                  securityContext:
+                      allowPrivilegeEscalation: false
+                      readOnlyRootFilesystem: true
+                      runAsNonRoot: true
+                      capabilities:
+                          drop: ["ALL"]
+                      seccompProfile:
+                          type: RuntimeDefault
+                  {{- if not .Values.dex.insecure }}
+                  volumeMounts:
+                      - name: dex-tls
+                        mountPath: /etc/dex-client-controller/dex-tls
+                        readOnly: true
+                  {{- end }}
+            {{- if not .Values.dex.insecure }}
+            volumes:
+                - name: dex-tls
+                  secret:
+                      secretName: {{ include "dcc.dexTLSSecretName" . }}
+                      defaultMode: 0440
+            {{- end }}
+            {{- with .Values.nodeSelector }}
+            nodeSelector:
+                {{- toYaml . | nindent 16 }}
+            {{- end }}
+            {{- with .Values.tolerations }}
+            tolerations:
+                {{- toYaml . | nindent 16 }}
+            {{- end }}
+            {{- with .Values.affinity }}
+            affinity:
+                {{- toYaml . | nindent 16 }}
+            {{- end }}

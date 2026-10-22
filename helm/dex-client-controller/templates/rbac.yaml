@@ -1,0 +1,130 @@
+# Copyright 2026 BitWise Media Group Ltd
+# SPDX-License-Identifier: MIT
+#
+# The controller's identity, verb by verb:
+#   - its own CRs: read them, write finalizers and status;
+#   - Secrets: read the ones CRs reference (metadata watch + uncached get),
+#     and create/update the client Secrets it generates and owns;
+#   - events.k8s.io events, and its leader-election Lease in the release
+#     namespace.
+# With watchNamespaces set, the ClusterRole is bound into just those
+# namespaces (RoleBindings), so the controller cannot read Secrets anywhere
+# else.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+    name: {{ include "dcc.fullname" . }}
+    labels:
+        {{- include "dcc.labels" . | nindent 8 }}
+rules:
+    - apiGroups: ["dex.bitwisemedia.uk"]
+      resources: ["dexclients", "dexconnectors"]
+      verbs: ["get", "list", "watch", "update", "patch"]
+    - apiGroups: ["dex.bitwisemedia.uk"]
+      resources: ["dexclients/status", "dexconnectors/status"]
+      verbs: ["get", "update", "patch"]
+    - apiGroups: ["dex.bitwisemedia.uk"]
+      resources: ["dexclients/finalizers", "dexconnectors/finalizers"]
+      verbs: ["update"]
+    - apiGroups: [""]
+      resources: ["secrets"]
+      verbs: ["get", "list", "watch", "create", "update", "patch"]
+    - apiGroups: ["events.k8s.io"]
+      resources: ["events"]
+      verbs: ["create", "patch"]
+{{- if .Values.watchNamespaces }}
+{{- range $ns := .Values.watchNamespaces }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+    name: {{ include "dcc.fullname" $ }}
+    namespace: {{ $ns }}
+    labels:
+        {{- include "dcc.labels" $ | nindent 8 }}
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: {{ include "dcc.fullname" $ }}
+subjects:
+    - kind: ServiceAccount
+      name: {{ include "dcc.serviceAccountName" $ }}
+      namespace: {{ $.Release.Namespace }}
+{{- end }}
+{{- else }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+    name: {{ include "dcc.fullname" . }}
+    labels:
+        {{- include "dcc.labels" . | nindent 8 }}
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: ClusterRole
+    name: {{ include "dcc.fullname" . }}
+subjects:
+    - kind: ServiceAccount
+      name: {{ include "dcc.serviceAccountName" . }}
+      namespace: {{ .Release.Namespace }}
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+    name: {{ include "dcc.fullname" . }}-leader-election
+    namespace: {{ .Release.Namespace }}
+    labels:
+        {{- include "dcc.labels" . | nindent 8 }}
+rules:
+    - apiGroups: ["coordination.k8s.io"]
+      resources: ["leases"]
+      verbs: ["get", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+    name: {{ include "dcc.fullname" . }}-leader-election
+    namespace: {{ .Release.Namespace }}
+    labels:
+        {{- include "dcc.labels" . | nindent 8 }}
+roleRef:
+    apiGroup: rbac.authorization.k8s.io
+    kind: Role
+    name: {{ include "dcc.fullname" . }}-leader-election
+subjects:
+    - kind: ServiceAccount
+      name: {{ include "dcc.serviceAccountName" . }}
+      namespace: {{ .Release.Namespace }}
+{{- if .Values.rbac.aggregateToDefaultRoles }}
+---
+# Namespace editors and admins self-serve DexClients.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+    name: {{ include "dcc.fullname" . }}-edit
+    labels:
+        {{- include "dcc.labels" . | nindent 8 }}
+        rbac.authorization.k8s.io/aggregate-to-admin: "true"
+        rbac.authorization.k8s.io/aggregate-to-edit: "true"
+rules:
+    - apiGroups: ["dex.bitwisemedia.uk"]
+      resources: ["dexclients"]
+      verbs: ["create", "delete", "deletecollection", "patch", "update"]
+---
+# Everyone who can view a namespace can see its DexClients and DexConnectors
+# (neither holds a secret: those stay in the referenced Secrets).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+    name: {{ include "dcc.fullname" . }}-view
+    labels:
+        {{- include "dcc.labels" . | nindent 8 }}
+        rbac.authorization.k8s.io/aggregate-to-admin: "true"
+        rbac.authorization.k8s.io/aggregate-to-edit: "true"
+        rbac.authorization.k8s.io/aggregate-to-view: "true"
+rules:
+    - apiGroups: ["dex.bitwisemedia.uk"]
+      resources: ["dexclients", "dexconnectors", "dexclients/status", "dexconnectors/status"]
+      verbs: ["get", "list", "watch"]
+{{- end }}

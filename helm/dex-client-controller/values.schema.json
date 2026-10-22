@@ -1,0 +1,154 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "dex-client-controller Helm chart values",
+    "type": "object",
+    "additionalProperties": false,
+    "definitions": {
+        "stringMap": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+        },
+        "labelSelector": {
+            "type": "object",
+            "description": "A Kubernetes LabelSelector (matchLabels / matchExpressions)",
+            "additionalProperties": false,
+            "properties": {
+                "matchLabels": { "$ref": "#/definitions/stringMap" },
+                "matchExpressions": { "type": "array", "items": { "type": "object" } }
+            }
+        }
+    },
+    "properties": {
+        "global": { "type": "object" },
+        "image": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "repository": { "type": "string", "minLength": 1 },
+                "tag": { "type": "string" },
+                "digest": { "type": "string", "pattern": "^(sha256:[a-f0-9]{64})?$" },
+                "pullPolicy": { "type": "string", "enum": ["Always", "IfNotPresent", "Never"] },
+                "pullSecrets": { "type": "array", "items": { "type": "object" } }
+            }
+        },
+        "nameOverride": { "type": "string" },
+        "fullnameOverride": { "type": "string" },
+        "crds": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "install": { "type": "boolean" },
+                "keep": { "type": "boolean" }
+            }
+        },
+        "commonLabels": { "$ref": "#/definitions/stringMap" },
+        "commonAnnotations": { "$ref": "#/definitions/stringMap" },
+        "dex": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["address"],
+            "properties": {
+                "address": {
+                    "type": "string",
+                    "description": "dex gRPC API address, host:port",
+                    "pattern": "^[^\\s:]+:[0-9]+$"
+                },
+                "issuer": { "type": "string" },
+                "serverName": { "type": "string" },
+                "insecure": { "type": "boolean" },
+                "tls": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "secretName": { "type": "string" }
+                    }
+                }
+            }
+        },
+        "watchNamespaces": {
+            "type": "array",
+            "items": { "type": "string", "minLength": 1 },
+            "uniqueItems": true
+        },
+        "resyncPeriod": {
+            "type": "string",
+            "description": "Go duration, e.g. 30s, 5m, 1h",
+            "pattern": "^([0-9]+(\\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$"
+        },
+        "logLevel": { "type": "string", "enum": ["debug", "info", "warn", "error"] },
+        "serviceAccount": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "create": { "type": "boolean" },
+                "name": { "type": "string" },
+                "annotations": { "$ref": "#/definitions/stringMap" }
+            }
+        },
+        "rbac": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "aggregateToDefaultRoles": { "type": "boolean" }
+            }
+        },
+        "resources": { "type": "object" },
+        "podAnnotations": { "$ref": "#/definitions/stringMap" },
+        "podLabels": { "$ref": "#/definitions/stringMap" },
+        "priorityClassName": { "type": "string" },
+        "nodeSelector": { "$ref": "#/definitions/stringMap" },
+        "tolerations": { "type": "array", "items": { "type": "object" } },
+        "affinity": { "type": "object" },
+        "metrics": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enabled": { "type": "boolean" },
+                "service": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "annotations": { "$ref": "#/definitions/stringMap" }
+                    }
+                },
+                "serviceMonitor": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "enabled": { "type": "boolean" },
+                        "interval": { "type": "string" },
+                        "labels": { "$ref": "#/definitions/stringMap" }
+                    }
+                }
+            }
+        },
+        "networkPolicy": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "enabled": { "type": "boolean" },
+                "dex": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+                        "namespaceSelector": { "$ref": "#/definitions/labelSelector" },
+                        "podSelector": { "$ref": "#/definitions/labelSelector" }
+                    }
+                },
+                "apiServer": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "ports": {
+                            "type": "array",
+                            "items": { "type": "integer", "minimum": 1, "maximum": 65535 }
+                        },
+                        "cidrs": { "type": "array", "items": { "type": "string" } }
+                    }
+                },
+                "metricsFrom": { "type": "array", "items": { "type": "object" } }
+            }
+        }
+    }
+}

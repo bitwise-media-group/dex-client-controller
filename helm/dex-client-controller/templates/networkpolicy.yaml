@@ -1,0 +1,65 @@
+# Copyright 2026 BitWise Media Group Ltd
+# SPDX-License-Identifier: MIT
+#
+# Default-deny for the controller pod plus exactly what it needs. Probes come
+# from the kubelet, which most CNIs exempt from NetworkPolicy; the health port
+# is allowed anyway for the ones that do not.
+{{- if .Values.networkPolicy.enabled }}
+{{- $np := .Values.networkPolicy }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+    name: {{ include "dcc.fullname" . }}
+    namespace: {{ .Release.Namespace }}
+    labels:
+        {{- include "dcc.labels" . | nindent 8 }}
+spec:
+    podSelector:
+        matchLabels:
+            {{- include "dcc.selectorLabels" . | nindent 12 }}
+    policyTypes: ["Ingress", "Egress"]
+    ingress:
+        - ports:
+              - port: health
+                protocol: TCP
+        {{- if .Values.metrics.enabled }}
+        - ports:
+              - port: metrics
+                protocol: TCP
+          {{- with $np.metricsFrom }}
+          from:
+              {{- toYaml . | nindent 14 }}
+          {{- end }}
+        {{- end }}
+    egress:
+        # DNS
+        - ports:
+              - port: 53
+                protocol: UDP
+              - port: 53
+                protocol: TCP
+        # Kubernetes API server
+        - ports:
+              {{- range $np.apiServer.ports }}
+              - port: {{ . }}
+                protocol: TCP
+              {{- end }}
+          {{- with $np.apiServer.cidrs }}
+          to:
+              {{- range . }}
+              - ipBlock:
+                    cidr: {{ . }}
+              {{- end }}
+          {{- end }}
+        # dex gRPC API
+        - ports:
+              - port: {{ $np.dex.port }}
+                protocol: TCP
+          {{- $peer := dict }}
+          {{- with $np.dex.namespaceSelector }}{{ $_ := set $peer "namespaceSelector" . }}{{ end }}
+          {{- with $np.dex.podSelector }}{{ $_ := set $peer "podSelector" . }}{{ end }}
+          {{- with $peer }}
+          to:
+              - {{ toYaml . | indent 16 | trim }}
+          {{- end }}
+{{- end }}

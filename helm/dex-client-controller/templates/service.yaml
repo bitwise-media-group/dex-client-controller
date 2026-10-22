@@ -1,0 +1,24 @@
+# Copyright 2026 BitWise Media Group Ltd
+# SPDX-License-Identifier: MIT
+{{- if .Values.metrics.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+    name: {{ include "dcc.fullname" . }}-metrics
+    namespace: {{ .Release.Namespace }}
+    labels:
+        {{- include "dcc.labels" . | nindent 8 }}
+    {{- with include "dcc.annotations" (dict "root" $ "extra" .Values.metrics.service.annotations) }}
+    annotations:
+        {{- . | nindent 8 }}
+    {{- end }}
+spec:
+    type: ClusterIP
+    selector:
+        {{- include "dcc.selectorLabels" . | nindent 8 }}
+    ports:
+        - name: metrics
+          port: 8080
+          targetPort: metrics
+          protocol: TCP
+{{- end }}

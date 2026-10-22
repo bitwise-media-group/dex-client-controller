@@ -1,0 +1,167 @@
+# Copyright 2026 BitWise Media Group Ltd
+# SPDX-License-Identifier: MIT
+
+# GoReleaser config. Releases are cut by release-please: when its release PR
+# merges, the reusable release workflow (.github/workflows/release.yaml) pushes
+# the vX.Y.Z tag, leaves a draft GitHub release, and runs `goreleaser release` —
+# which adopts that draft (use_existing_draft + mode: replace below). Build
+# locally without publishing via `mise run snapshot`.
+#
+# Produces linux binary archives + checksums + per-binary SBOMs, keyless
+# cosign signatures, and the multi-arch container image (built by buildx from
+# the repo-root Dockerfile — dockers_v2 below — and pushed to ghcr on release).
+version: 2
+
+# ^ref: https://goreleaser.com/errors/multiple-tokens/
+force_token: github
+
+project_name: dex-client-controller
+
+before:
+    hooks:
+        - go mod download
+
+env:
+    - CGO_ENABLED=0
+
+builds:
+    - id: dex-client-controller
+      main: ./cmd/dex-client-controller
+      binary: dex-client-controller
+      flags:
+          - -trimpath
+      ldflags:
+          - -s -w
+          - -X github.com/bitwise-media-group/dex-client-controller/internal/version.Version={{ .Version }}
+          - -X github.com/bitwise-media-group/dex-client-controller/internal/version.Commit={{ .ShortCommit }}
+          - -X github.com/bitwise-media-group/dex-client-controller/internal/version.BuildDate={{ .Date }}
+      goos:
+          - linux
+      goarch:
+          - amd64
+          - arm64
+
+archives:
+    - id: dex-client-controller
+      ids: [dex-client-controller]
+      formats: [tar.gz]
+      name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+      files:
+          - LICENSE
+
+checksum:
+    name_template: checksums.txt
+
+dockers_v2:
+    - id: dex-client-controller
+      ids: [dex-client-controller]
+      dockerfile: Dockerfile
+      images:
+          - ghcr.io/bitwise-media-group/dex-client-controller
+      tags:
+          - v{{ .Version }}
+          - latest
+      platforms:
+          - linux/amd64
+          - linux/arm64
+      labels:
+          org.opencontainers.image.source: https://github.com/bitwise-media-group/dex-client-controller
+          org.opencontainers.image.licenses: MIT
+          org.opencontainers.image.revision: "{{ .FullCommit }}"
+          org.opencontainers.image.version: "{{ .Version }}"
+
+# ^ref: https://goreleaser.com/customization/package/docker_digests/
+# Writes dist/digests.txt — one `<hex digest>  <image:tag>` line per published
+# image/manifest, sha256sum format — which the release workflow feeds to
+# actions/attest so the image gets the same GitHub build-provenance
+# attestation as every file in checksums.txt. Verify with:
+#   gh attestation verify --owner bitwise-media-group \
+#     oci://ghcr.io/bitwise-media-group/dex-client-controller:vX.Y.Z
+docker_digest:
+    name_template: digests.txt
+
+# ^ref: https://goreleaser.com/customization/sign/docker/
+# Keyless cosign signatures over the pushed image, targeting the immutable
+# digest, not the tag. cosign v3 stores each signature as a sigstore bundle
+# attached via the OCI referrers API. --use-signing-config=false only pins
+# the v2 trust services (Fulcio + public Rekor v1); it does not change the
+# storage format. Runs only on publish; `mise run snapshot` skips it via
+# --skip=sign. Verify with:
+#   cosign verify ghcr.io/bitwise-media-group/dex-client-controller:vX.Y.Z \
+#     --certificate-oidc-issuer=https://token.actions.githubusercontent.com \
+#     --certificate-identity-regexp='^https://github.com/bitwise-media-group/github-workflows/'
+docker_signs:
+    - cmd: cosign
+      args:
+          - sign
+          - ${artifact}@${digest}
+          - --yes
+          - --use-signing-config=false
+      output: true
+
+# ^ref: https://goreleaser.com/customization/sign/sign/
+# Keyless cosign signatures over the binaries; the reusable release workflow
+# supplies the GitHub Actions OIDC token. `mise run snapshot` skips this
+# (--skip=sign).
+binary_signs:
+    - cmd: cosign
+      ids: [dex-client-controller]
+      signature: "{{ .Binary }}_{{ .Os }}_{{ .Arch }}.sigstore.json"
+      args:
+          - sign-blob
+          - --bundle=${signature}
+          - ${artifact}
+          - --yes
+      output: true
+
+# One SBOM per binary: syft reads the module list Go embeds at link time.
+sboms:
+    - artifacts: binary
+      # syft is pinned by the toolchain submodule's mise config and on PATH
+      # for whoever runs goreleaser (mise run snapshot locally, the release
+      # workflow in CI).
+      cmd: syft
+      args:
+          - $artifact
+          - --output
+          - spdx-json=$document
+
+snapshot:
+    version_template: "{{ incpatch .Version }}-snapshot-{{ .ShortCommit }}"
+
+changelog:
+    sort: asc
+    use: github
+    format: "{{ .SHA }}: {{ .Message }}{{ if and (not .IsNightly) .Logins }} ({{ .Logins | englishJoin }}){{ end }}"
+    filters:
+        exclude:
+            - "^test"
+            - "^chore"
+            - "^build"
+    groups:
+        - title: "New Features"
+          regexp: '^.*?feat(\(.+\))??!?:.+$'
+          order: 100
+        - title: "Security Updates"
+          regexp: '^.*?sec(\(.+\))??!?:.+$'
+          order: 150
+        - title: "Bug Fixes"
+          regexp: '^.*?(fix|refactor)(\(.+\))??!?:.+$'
+          order: 200
+        - title: "Documentation Updates"
+          regexp: ^.*?docs?(\(.+\))??!?:.+$
+          order: 400
+        - title: Other Work
+          order: 9999
+
+release:
+    github:
+        owner: bitwise-media-group
+        name: dex-client-controller
+    # The release-please job in release.yaml leaves a draft release named after
+    # the tag it pushes. Adopt that draft instead of creating a second release,
+    # swap its release-please notes for the grouped changelog above, and leave
+    # it a draft: the reusable release workflow runs GoReleaser with --draft
+    # and publishes it last, once the assets and attestations land.
+    use_existing_draft: true
+    mode: replace

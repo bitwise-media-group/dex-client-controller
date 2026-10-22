@@ -1,0 +1,55 @@
+[
+    {
+        "name": "controller-c0211-selinux-options-are-host-specific",
+        "policyType": "postureExceptionPolicy",
+        "actions": ["disable"],
+        "resources": [
+            {
+                "designatorType": "Attributes",
+                "attributes": { "kind": "Deployment", "name": ".*dex-client-controller" }
+            }
+        ],
+        "posturePolicies": [{ "controlID": "C-0211" }]
+    },
+    {
+        "name": "controller-needs-the-kubernetes-api",
+        "policyType": "postureExceptionPolicy",
+        "actions": ["disable"],
+        "resources": [
+            {
+                "designatorType": "Attributes",
+                "attributes": { "name": ".*dex-client-controller" }
+            }
+        ],
+        "posturePolicies": [
+            { "controlID": "C-0034" },
+            { "controlID": "C-0053" },
+            { "controlID": "C-0190" },
+            { "controlID": "C-0261" }
+        ]
+    },
+    {
+        "name": "controller-rbac-reads-referenced-secrets",
+        "policyType": "postureExceptionPolicy",
+        "actions": ["disable"],
+        "resources": [
+            {
+                "designatorType": "Attributes",
+                "attributes": { "name": ".*dex-client-controller" }
+            }
+        ],
+        "posturePolicies": [{ "controlID": "C-0015" }, { "controlID": "C-0186" }, { "controlID": "C-0267" }]
+    },
+    {
+        "name": "image-signed-but-scanner-cannot-see-it",
+        "policyType": "postureExceptionPolicy",
+        "actions": ["disable"],
+        "resources": [
+            {
+                "designatorType": "Attributes",
+                "attributes": { "name": ".*dex-client-controller" }
+            }
+        ],
+        "posturePolicies": [{ "controlID": "C-0236" }, { "controlID": "C-0237" }]
+    }
+]

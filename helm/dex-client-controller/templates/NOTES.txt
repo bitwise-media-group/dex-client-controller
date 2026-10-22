@@ -1,0 +1,61 @@
+dex-client-controller {{ .Chart.AppVersion }} is reconciling DexClient and DexConnector
+resources {{ if .Values.watchNamespaces }}in {{ join ", " .Values.watchNamespaces }}{{ else }}cluster-wide{{ end }} into the dex at {{ .Values.dex.address }}.
+
+1. Enable dex's gRPC API with mutual TLS. dex has no other API authentication,
+   so whoever holds a client certificate signed by tlsClientCA administers dex:
+
+     grpc:
+       addr: 0.0.0.0:5557
+       tlsCert: /etc/dex/grpc/tls.crt
+       tlsKey: /etc/dex/grpc/tls.key
+       tlsClientCA: /etc/dex/grpc/ca.crt
+{{- if not .Values.dex.insecure }}
+
+2. Give the controller its client certificate: Secret
+   {{ .Release.Namespace }}/{{ include "dcc.dexTLSSecretName" . }} with keys ca.crt (verifies dex's
+   serving certificate), tls.crt and tls.key (signed by dex's tlsClientCA).
+   A cert-manager Certificate writes exactly this shape:
+
+     apiVersion: cert-manager.io/v1
+     kind: Certificate
+     metadata:
+       name: {{ include "dcc.dexTLSSecretName" . }}
+       namespace: {{ .Release.Namespace }}
+     spec:
+       secretName: {{ include "dcc.dexTLSSecretName" . }}
+       commonName: dex-client-controller
+       usages: ["client auth"]
+       issuerRef: { kind: Issuer, name: <the issuer that signs dex's tlsClientCA> }
+{{- else }}
+
+2. WARNING: dex.insecure is set — the controller dials dex without TLS and dex's
+   API is open to anyone who can reach its port. Development only.
+{{- end }}
+
+3. DexConnector needs dex to run with the connector CRUD API enabled:
+
+     env:
+       - name: DEX_API_CONNECTORS_CRUD
+         value: "true"
+
+   Without it, DexConnectors report Ready=False, reason FeatureDisabled.
+
+4. Decide who may create connectors. A connector changes how everyone signs in,
+   so {{ if .Values.rbac.aggregateToDefaultRoles }}the chart aggregates DexClient write access into the built-in
+   edit/admin roles but DexConnector only into view. {{ end }}Grant connector authors a
+   role like:
+
+     apiVersion: rbac.authorization.k8s.io/v1
+     kind: ClusterRole
+     metadata:
+       name: dex-connector-admin
+     rules:
+       - apiGroups: ["dex.bitwisemedia.uk"]
+         resources: ["dexconnectors"]
+         verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+
+   bound with a RoleBinding in the namespaces that may define connectors.
+
+Check progress with:
+
+  kubectl get dexclients,dexconnectors -A

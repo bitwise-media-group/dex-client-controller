@@ -1,0 +1,21 @@
+# Copyright 2026 BitWise Media Group Ltd
+# SPDX-License-Identifier: MIT
+{{- if and .Values.metrics.enabled .Values.metrics.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+    name: {{ include "dcc.fullname" . }}
+    namespace: {{ .Release.Namespace }}
+    labels:
+        {{- include "dcc.labels" . | nindent 8 }}
+        {{- with .Values.metrics.serviceMonitor.labels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+spec:
+    selector:
+        matchLabels:
+            {{- include "dcc.selectorLabels" . | nindent 12 }}
+    endpoints:
+        - port: metrics
+          interval: {{ .Values.metrics.serviceMonitor.interval }}
+{{- end }}
