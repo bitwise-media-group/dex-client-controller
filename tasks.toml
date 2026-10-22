@@ -3,10 +3,35 @@
 #
 # ---- repo-local tasks (the long tail the library intentionally omits) -------
 
-# Overrides the archetype's go-lint (golangci-lint plus a bare govulncheck):
+# Everything derived from api/v1alpha1: deepcopy methods (controller-gen
+# object) and the CRD manifests, written to config/crd (envtest's
+# CRDDirectoryPaths) and mirrored into the helm chart (hack/codegen.sh).
+[codegen]
+description = "regenerate deepcopy + CRD manifests from api/v1alpha1"
+dir = "{{cwd}}"
+run = "./hack/codegen.sh"
+
+# Overrides the archetype's go-lint (golangci-lint plus a bare govulncheck).
 # govulncheck runs through hack/govulncheck.sh so it can carry a reviewed
-# acceptance list for advisories with no usable fix yet (see the script).
+# acceptance list for advisories with no usable fix yet (see the script),
+# and a codegen drift check follows: regenerate, then fail if the tree under
+# api/, config/ or helm/ changed. Without it a types edit that skipped
+# `mise run codegen` would ship CRDs that no longer match the Go structs.
 [go-lint]
 hide = true
 dir = "{{cwd}}"
-run = ["golangci-lint run", "./hack/govulncheck.sh"]
+run = [
+  "golangci-lint run",
+  "./hack/govulncheck.sh",
+  "./hack/codegen.sh && git diff --exit-code -- api config helm",
+]
+
+# Overrides the archetype's go-test so the envtest suites (CRD schema/CEL
+# validation) run for real: hack/test.sh provisions kube-apiserver/etcd via
+# setup-envtest, exports KUBEBUILDER_ASSETS, then hands off to the archetype's
+# gotestsum script unchanged (race detector, coverage/, junit).
+[go-test]
+hide = true
+dir = "{{cwd}}"
+env = { TOOLCHAIN_GOOS = "{{vars.goos}}" }
+run = "./hack/test.sh"
