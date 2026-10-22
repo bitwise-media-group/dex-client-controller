@@ -1,0 +1,1150 @@
+/**
+ * Copyright 2026 BitWise Media Group Ltd
+ * SPDX-License-Identifier: MIT
+ */
+
+/* ============================================================
+   dex-client-controller docs — the parent BitWise Media Group theme for Zensical / Material
+   Terracotta orange (#D96C36, the logo colour) on warm cream / stone neutrals,
+   warm charcoal in dark mode — the same tokens as the org site
+   (bitwise-media-group.github.io docs/stylesheets/extra.css), not a sub-brand
+   palette. Hanken Grotesk + JetBrains Mono.
+   Light -> Material "default" scheme   Dark -> Material "slate" scheme
+
+   The --bw-* block is the org palette verbatim; the --dcc-* additions cover
+   what the dotty-style landing needs on top (terminal depths, an accent ink
+   for text, inline-code chips).
+   ============================================================ */
+
+/* ---------- LIGHT (default) — cream + terracotta ---------- */
+[data-md-color-scheme="default"] {
+  --md-default-bg-color: #faf6f1;
+  --md-default-bg-color--light: #f2eae0;
+  --md-default-fg-color: #1c1711;
+  --md-default-fg-color--light: #322920;
+  --md-default-fg-color--lighter: #6a5840;
+  --md-default-fg-color--lightest: rgba(28, 23, 17, 0.1);
+
+  --md-primary-fg-color: #faf6f1;
+  --md-primary-fg-color--light: #f2eae0;
+  --md-primary-fg-color--dark: #e6d9c9;
+  --md-primary-bg-color: #1c1711;
+  --md-primary-bg-color--light: #4d3f2d;
+
+  --md-accent-fg-color: #c25a28;
+  --md-accent-fg-color--transparent: rgba(217, 108, 54, 0.1);
+  --md-typeset-a-color: #a1471f;
+
+  --md-code-bg-color: #f2eae0;
+  --md-code-fg-color: #322920;
+
+  --md-footer-bg-color: #1c1711;
+  --md-footer-bg-color--dark: #15110b;
+
+  /* warm brand ramp */
+  --bw-orange: #d96c36; /* primary — the logo colour */
+  --bw-orange-2: #c25a28; /* hover */
+  --bw-orange-3: #a1471f; /* active */
+  --bw-orange-soft: #fbf1ea;
+  --bw-orange-tint: rgba(217, 108, 54, 0.1);
+  --bw-green: #5e8c4f; /* moss — success / live dot */
+  --bw-amber: #e0a030;
+
+  --bw-bg: #faf6f1; /* page / cream */
+  --bw-surface: #ffffff; /* cards */
+  --bw-sunken: #f2eae0;
+  --bw-fg: #1c1711;
+  --bw-body: #322920;
+  --bw-muted: #6a5840;
+  --bw-faint: #8b7559;
+  --bw-line: #e6d9c9;
+  --bw-line-2: #d4c2ac;
+  --bw-shadow:
+    0 12px 32px rgba(50, 41, 32, 0.12), 0 4px 8px rgba(50, 41, 32, 0.06);
+  --bw-glow: 0 8px 22px rgba(217, 108, 54, 0.3);
+
+  /* dex-client-controller additions */
+  --dcc-ink: #a1471f; /* accent as TEXT — legible on cream */
+  --dcc-code: #f6efe6; /* terminal bars + command rows */
+  --dcc-code-2: #f2eae0; /* recessed terminal bodies */
+  --dcc-ic-bg: #f2eae0;
+  --dcc-ic-border: rgba(28, 23, 17, 0.1);
+  --dcc-shadow-strong:
+    0 28px 70px rgba(50, 41, 32, 0.18), 0 6px 14px rgba(50, 41, 32, 0.06);
+}
+
+/* ---------- DARK (slate) — warm charcoal ---------- */
+[data-md-color-scheme="slate"] {
+  --md-default-bg-color: #1c1711;
+  --md-default-bg-color--light: #322920;
+  --md-default-fg-color: #faf6f1;
+  --md-default-fg-color--light: #e6d9c9;
+  --md-default-fg-color--lighter: #b0997e;
+  --md-default-fg-color--lightest: rgba(250, 246, 241, 0.09);
+
+  --md-primary-fg-color: #1c1711;
+  --md-primary-fg-color--light: #322920;
+  --md-primary-fg-color--dark: #15110b;
+  --md-primary-bg-color: #faf6f1;
+  --md-primary-bg-color--light: #d4c2ac;
+
+  --md-accent-fg-color: #de854f;
+  --md-accent-fg-color--transparent: rgba(222, 133, 79, 0.12);
+  --md-typeset-a-color: #e49e72;
+
+  --md-code-bg-color: #15110b;
+  --md-code-fg-color: #e6d9c9;
+
+  --md-footer-bg-color: #15110b;
+  --md-footer-bg-color--dark: #100d08;
+
+  --bw-orange: #de854f;
+  --bw-orange-2: #e49e72;
+  --bw-orange-3: #edbe9f;
+  --bw-orange-soft: rgba(222, 133, 79, 0.16);
+  --bw-orange-tint: rgba(222, 133, 79, 0.12);
+  --bw-green: #8fb37e;
+  --bw-amber: #e0a030;
+
+  --bw-bg: #1c1711;
+  --bw-surface: #322920;
+  --bw-sunken: #15110b;
+  --bw-fg: #faf6f1;
+  --bw-body: #f2eae0;
+  --bw-muted: #b0997e;
+  --bw-faint: #8b7559;
+  --bw-line: rgba(250, 246, 241, 0.1);
+  --bw-line-2: rgba(250, 246, 241, 0.18);
+  --bw-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  --bw-glow: 0 8px 22px rgba(222, 133, 79, 0.28);
+
+  /* dex-client-controller additions */
+  --dcc-ink: #e49e72;
+  --dcc-code: #261f18;
+  --dcc-code-2: #15110b;
+  --dcc-ic-bg: #2a221a;
+  --dcc-ic-border: rgba(250, 246, 241, 0.12);
+  --dcc-shadow-strong: 0 28px 70px rgba(0, 0, 0, 0.55);
+}
+
+/* ===== Header: flat, with a soft terracotta underline ===== */
+.md-header {
+  box-shadow: none;
+  border-bottom: 1px solid var(--bw-line);
+  position: relative;
+}
+.md-header[data-md-state="shadow"],
+.md-header--shadow {
+  box-shadow: none;
+}
+.md-header__inner {
+  min-height: 3rem;
+}
+.md-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--bw-orange),
+    var(--bw-orange-2) 55%,
+    var(--bw-orange-3)
+  );
+  opacity: 0.9;
+}
+
+/* Header / drawer wordmark lockup: logo + stacked "dex-client-controller / BITWISE MEDIA
+   GROUP" (partials/header.html, partials/nav.html) */
+.dcc-headmark {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: inherit;
+  line-height: 1;
+}
+.dcc-headmark img {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+}
+.dcc-headmark__text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+.dcc-headmark__name {
+  font-family: var(--md-code-font-family, "JetBrains Mono", monospace);
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  color: var(--bw-fg);
+}
+.dcc-headmark__sub {
+  font-family: var(--md-code-font-family, "JetBrains Mono", monospace);
+  font-size: 8px;
+  letter-spacing: 0.3em;
+  color: var(--bw-orange-2);
+  margin-top: 4px;
+}
+.dcc-headmark:hover {
+  opacity: 0.85;
+}
+/* Material lays the header title out for cross-fading page "topics": the title
+   is a fixed 2.4rem-tall cell and .md-header__topic is position:absolute (so it
+   carries no width and pins to the top). We render a single static wordmark, so
+   undo that — let the lockup flow, size the title to its content, and vertically
+   centre it. */
+.md-header__title {
+  flex-grow: 1;
+  height: auto;
+  line-height: 1;
+  margin-right: 0;
+}
+.md-header__title > .md-header__ellipsis {
+  display: flex;
+  align-items: center;
+  width: auto;
+  height: auto;
+}
+.md-header .md-header__topic {
+  position: static;
+  align-items: center;
+}
+.md-header .md-ellipsis {
+  flex-grow: 0;
+  overflow: visible;
+}
+.md-nav__title .dcc-headmark__name {
+  color: var(--bw-fg);
+}
+/* "dex-client-controller" is half again as long as the flux-* wordmarks, so
+   step it down on phones where it shares the bar with the menu, palette and
+   search buttons. */
+@media screen and (max-width: 30em) {
+  .dcc-headmark__name {
+    font-size: 14px;
+  }
+}
+
+/* ===== Doc pages ===== */
+.md-footer {
+  border-top: 1px solid var(--bw-line);
+}
+[dir="ltr"] .md-search__input {
+  border-radius: 8px;
+}
+.md-nav__link--active,
+.md-nav__item .md-nav__link--active {
+  color: var(--md-accent-fg-color);
+}
+.md-typeset .md-typeset__table {
+  border-color: var(--bw-line);
+}
+.md-typeset table:not([class]) th {
+  background: var(--bw-sunken);
+  color: var(--bw-fg);
+}
+.md-typeset .admonition,
+.md-typeset details {
+  border-left-width: 3px;
+  border-radius: 8px;
+}
+.md-typeset .tabbed-labels > label > [href]:first-child,
+.md-typeset .tabbed-set > input:checked + label {
+  color: var(--md-accent-fg-color);
+}
+
+/* Inline-code chips. Material's default --md-code-bg-color sits darker than the
+   page in dark mode, so a bare inline chip nearly vanishes; --dcc-ic-bg gives it
+   a raised surface with a hairline border instead. Scoped to inline code (a
+   <code> not inside a <pre>) so fenced blocks keep their own sunken panel. */
+.md-typeset :not(pre) > code {
+  background-color: var(--dcc-ic-bg);
+  border: 1px solid var(--dcc-ic-border);
+}
+
+/* ============================================================
+   LANDING PAGE  (.dcc) — injected by overrides/home.html.
+   The dotty landing's structure in the parent palette: it reads
+   the scheme-scoped --bw-* / --dcc-* tokens above, so it follows
+   the dark/light toggle — cream in light mode, warm charcoal in
+   dark. Terracotta is the FILL colour (buttons, dots, icon
+   tiles); --dcc-ink is the accent used as TEXT.
+   ============================================================ */
+.dcc {
+  --dcc-mono: var(--md-code-font-family, "JetBrains Mono", ui-monospace, monospace);
+  --dcc-sans: var(--md-text-font-family, "Hanken Grotesk", system-ui, sans-serif);
+  --dcc-r: 10px;
+
+  background: var(--bw-bg);
+  color: var(--bw-body);
+  font-family: var(--dcc-sans);
+  line-height: 1.55;
+}
+.dcc * {
+  box-sizing: border-box;
+}
+.dcc a {
+  text-decoration: none;
+}
+.dcc code {
+  font-family: var(--dcc-mono);
+}
+
+/* ---- HERO ---- */
+.dcc-hero {
+  position: relative;
+  overflow: hidden;
+}
+.dcc-hero__grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.6;
+  background-image:
+    linear-gradient(var(--bw-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--bw-line) 1px, transparent 1px);
+  background-size: 46px 46px;
+  -webkit-mask-image: radial-gradient(120% 80% at 50% 0%, #000 30%, transparent 72%);
+  mask-image: radial-gradient(120% 80% at 50% 0%, #000 30%, transparent 72%);
+}
+.dcc-hero__glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      820px 380px at 78% -8%,
+      color-mix(in oklab, var(--bw-orange) 16%, transparent),
+      transparent
+    ),
+    radial-gradient(
+      620px 360px at 8% 6%,
+      color-mix(in oklab, var(--bw-amber) 9%, transparent),
+      transparent
+    );
+}
+.dcc-hero__mark {
+  position: absolute;
+  right: -120px;
+  top: -70px;
+  width: 560px;
+  max-width: 70vw;
+  opacity: 0.05;
+  pointer-events: none;
+  user-select: none;
+}
+.dcc-hero__inner {
+  position: relative;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 76px 24px 52px;
+  text-align: center;
+}
+.dcc-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 24px;
+  font-family: var(--dcc-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--dcc-ink);
+  border: 1px solid color-mix(in oklab, var(--bw-orange) 35%, transparent);
+  background: var(--bw-orange-tint);
+  padding: 5px 13px;
+  border-radius: 999px;
+}
+.dcc-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bw-green);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--bw-green) 22%, transparent);
+  animation: dcc-pulse 1.8s ease-in-out infinite;
+}
+.dcc-title {
+  margin: 0;
+  font-family: var(--dcc-sans);
+  font-weight: 800;
+  font-size: clamp(42px, 7vw, 78px);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: var(--bw-fg);
+}
+.dcc-title em {
+  font-style: normal;
+  color: var(--bw-orange);
+}
+.dcc-lede {
+  margin: 22px auto 0;
+  max-width: 660px;
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--bw-muted);
+  text-wrap: pretty;
+}
+.dcc-lede code {
+  font-size: 0.88em;
+  color: var(--dcc-ink);
+}
+
+/* install terminal block */
+.dcc-term {
+  max-width: 640px;
+  margin: 30px auto 0;
+  text-align: left;
+  overflow: hidden;
+  background: var(--bw-surface);
+  border: 1px solid var(--bw-line);
+  border-radius: var(--dcc-r);
+  box-shadow: var(--bw-shadow);
+}
+.dcc-term__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+}
+.dcc-dots {
+  display: flex;
+  gap: 6px;
+}
+.dcc-dots i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.dcc-dots i:nth-child(1) {
+  background: var(--bw-orange);
+}
+.dcc-dots i:nth-child(2) {
+  background: var(--bw-amber);
+}
+.dcc-dots i:nth-child(3) {
+  background: var(--bw-green);
+}
+.dcc-term__bar span {
+  margin-left: 6px;
+  font-family: var(--dcc-mono);
+  font-size: 11px;
+  color: var(--bw-muted);
+}
+
+/* a copyable command row ($ cmd  + copy button) */
+.dcc-copy {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 44px 11px 14px;
+  background: var(--dcc-code);
+  border-top: 1px solid var(--bw-line);
+}
+.dcc-copy .dcc-p,
+.dcc-cmd .dcc-p {
+  color: var(--dcc-ink);
+  font-family: var(--dcc-mono);
+  font-size: 13px;
+}
+.dcc-copy code {
+  flex: 1;
+  font-size: 13px;
+  color: var(--bw-fg);
+  background: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* buttons */
+.dcc-cta {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+.dcc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--dcc-sans);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 13px 22px;
+  border-radius: var(--dcc-r);
+  border: 1px solid transparent;
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s,
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
+}
+.dcc-btn svg {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+}
+.dcc-btn--primary {
+  background: var(--bw-orange);
+  color: #fff;
+}
+.dcc-btn--primary:hover {
+  background: var(--bw-orange-2);
+  color: #fff;
+  box-shadow: var(--bw-glow);
+  transform: translateY(-1px);
+}
+.dcc-btn--secondary {
+  background: var(--bw-surface);
+  color: var(--bw-body);
+  border-color: var(--bw-line-2);
+}
+.dcc-btn--secondary:hover {
+  border-color: var(--bw-orange);
+  color: var(--dcc-ink);
+}
+.dcc-btn--ghost {
+  background: transparent;
+  color: var(--bw-muted);
+  padding-left: 12px;
+  padding-right: 12px;
+}
+.dcc-btn--ghost:hover {
+  color: var(--dcc-ink);
+}
+
+/* ---- TERMINAL SHOWCASE ---- */
+.dcc-shot {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 8px 24px 4px;
+}
+.dcc-shot__frame {
+  background: var(--dcc-code-2);
+  border: 1px solid var(--bw-line);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--dcc-shadow-strong);
+}
+.dcc-shot__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--bw-line);
+  background: var(--dcc-code);
+  font-family: var(--dcc-mono);
+}
+.dcc-shot__bar .dcc-dots i {
+  width: 11px;
+  height: 11px;
+}
+.dcc-title-sm {
+  margin-left: 6px;
+  font-size: 11.5px;
+  color: var(--bw-muted);
+}
+.dcc-live {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--dcc-ink);
+}
+.dcc-panes {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+}
+.dcc-pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.dcc-pane + .dcc-pane {
+  border-left: 1px solid var(--bw-line);
+}
+.dcc-pane__head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 11px;
+  border-bottom: 1px solid var(--bw-line);
+  background: var(--dcc-code);
+}
+.dcc-pane__head b {
+  font-family: var(--dcc-mono);
+  font-size: 10px;
+  color: #fff;
+  background: var(--bw-orange);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-weight: 700;
+}
+.dcc-pane__head span {
+  font-family: var(--dcc-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bw-muted);
+}
+.dcc-pane__body {
+  padding: 12px 14px;
+  font-family: var(--dcc-mono);
+  font-size: 12px;
+  line-height: 1.85;
+  color: var(--bw-body);
+  overflow: hidden;
+}
+.dcc-pane__body > div {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dcc-toml .s {
+  color: var(--dcc-ink);
+  font-weight: 600;
+}
+.dcc-toml .k {
+  color: var(--bw-fg);
+}
+.dcc-toml .v {
+  color: var(--bw-green);
+}
+.dcc-toml .c {
+  color: var(--bw-faint);
+}
+.dcc-run {
+  display: flex;
+  gap: 10px;
+}
+.dcc-run .t {
+  width: 52px;
+  flex-shrink: 0;
+  color: var(--dcc-ink);
+}
+.dcc-run .d {
+  flex: 1;
+  min-width: 0;
+  color: var(--bw-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dcc-run .ok {
+  color: var(--bw-green);
+}
+.dcc-pane__sep {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--bw-line);
+}
+.dcc-ok {
+  color: var(--bw-green);
+}
+.dcc-dim {
+  color: var(--bw-muted);
+}
+.dcc-blink {
+  display: inline-block;
+  width: 7px;
+  height: 13px;
+  background: var(--bw-orange);
+  vertical-align: middle;
+  margin-left: 1px;
+  animation: dcc-blink 1s steps(1) infinite;
+}
+.dcc-shot__cap {
+  text-align: center;
+  font-size: 14px;
+  color: var(--bw-muted);
+  margin: 16px 2px 0;
+}
+.dcc-shot__cap b {
+  color: var(--bw-fg);
+  font-weight: 600;
+}
+.dcc-shot__cap code {
+  font-size: 0.9em;
+  color: var(--dcc-ink);
+}
+
+/* ---- MARQUEE ---- */
+.dcc-marquee {
+  overflow: hidden;
+  border-top: 1px solid var(--bw-line);
+  border-bottom: 1px solid var(--bw-line);
+  padding: 13px 0;
+  margin-top: 44px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.dcc-marquee__track {
+  display: flex;
+  width: max-content;
+  animation: dcc-marquee 48s linear infinite;
+}
+.dcc-marquee__track span {
+  font-family: var(--dcc-mono);
+  font-size: 12.5px;
+  color: var(--bw-muted);
+  padding: 0 22px;
+  border-right: 1px solid var(--bw-line);
+  white-space: nowrap;
+}
+
+/* ---- STATS ---- */
+.dcc-stats-wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+.dcc-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--bw-line);
+  border-top: none;
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+}
+.dcc-stat {
+  padding: 22px 20px;
+  background: var(--bw-surface);
+}
+.dcc-stat + .dcc-stat {
+  border-left: 1px solid var(--bw-line);
+}
+.dcc-stat b {
+  display: block;
+  font-family: var(--dcc-sans);
+  font-weight: 800;
+  font-size: clamp(24px, 3vw, 32px);
+  letter-spacing: -0.02em;
+  color: var(--bw-fg);
+}
+.dcc-stat b.dcc-ink {
+  color: var(--bw-orange);
+}
+.dcc-stat small {
+  display: block;
+  font-family: var(--dcc-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--bw-muted);
+  margin-top: 4px;
+}
+
+/* ---- SECTIONS ---- */
+.dcc-section {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 72px 24px 0;
+}
+.dcc-section--last {
+  padding-bottom: 84px;
+}
+.dcc-eyebrow {
+  margin: 0;
+  font-family: var(--dcc-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--dcc-ink);
+}
+.dcc-lead {
+  margin: 10px 0 28px;
+  font-family: var(--dcc-sans);
+  font-size: clamp(24px, 3.4vw, 34px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--bw-fg);
+  max-width: 780px;
+  text-wrap: balance;
+}
+.dcc-lead--sm {
+  margin: 10px 0 24px;
+  font-family: var(--dcc-sans);
+  font-size: clamp(20px, 2.6vw, 26px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--bw-fg);
+}
+.dcc-lead--sm code {
+  font-size: 0.82em;
+  color: var(--dcc-ink);
+  background: none;
+}
+
+/* connected feature grid */
+.dcc-conn {
+  border: 1px solid var(--bw-line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.dcc-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.dcc-grid-3 > * {
+  border-left: 1px solid var(--bw-line);
+  border-top: 1px solid var(--bw-line);
+}
+.dcc-grid-3 > :nth-child(3n + 1) {
+  border-left: none;
+}
+.dcc-grid-3 > :nth-child(-n + 3) {
+  border-top: none;
+}
+.dcc-feat {
+  padding: 24px;
+  background: var(--bw-surface);
+}
+.dcc-glyph {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+  color: #fff;
+}
+.dcc-glyph svg {
+  width: 20px;
+  height: 20px;
+}
+.dcc-feat h3 {
+  margin: 0 0 7px;
+  font-family: var(--dcc-sans);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--bw-fg);
+}
+.dcc-feat p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--bw-muted);
+  text-wrap: pretty;
+}
+.dcc-feat p code {
+  font-size: 0.9em;
+  color: var(--bw-fg);
+  background: none;
+  padding: 0;
+}
+
+/* component cards */
+.dcc-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.dcc-card {
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+  border-radius: 12px;
+  border: 1px solid var(--bw-line);
+  background: var(--bw-surface);
+  color: var(--bw-body);
+  transition:
+    transform 0.18s,
+    box-shadow 0.18s,
+    border-color 0.18s;
+}
+.dcc-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--bw-shadow);
+  border-color: color-mix(in oklab, var(--bw-orange) 45%, transparent);
+}
+.dcc-card__name {
+  font-family: var(--dcc-mono);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--dcc-ink);
+}
+.dcc-card p {
+  margin: 8px 0 16px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--bw-muted);
+  text-wrap: pretty;
+}
+.dcc-card p code {
+  font-size: 0.9em;
+  color: var(--bw-fg);
+}
+.dcc-card > code {
+  margin-top: auto;
+  align-self: flex-start;
+  font-size: 11.5px;
+  color: var(--bw-muted);
+  padding: 4px 10px 4px 22px;
+  border: 1px solid var(--bw-line-2);
+  border-radius: 7px;
+  position: relative;
+}
+.dcc-card > code::before {
+  content: "";
+  position: absolute;
+  left: 9px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background: var(--bw-orange);
+}
+.dcc-card--common > code::before {
+  background: var(--bw-green);
+}
+
+/* ---- CONTRACT (command list) ---- */
+.dcc-cmdcard {
+  background: var(--dcc-code-2);
+  border: 1px solid var(--bw-line);
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 780px;
+}
+.dcc-cmdcard__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--bw-line);
+  background: var(--dcc-code);
+}
+.dcc-cmdcard__bar svg {
+  width: 14px;
+  height: 14px;
+  color: var(--dcc-ink);
+}
+.dcc-cmdcard__bar span {
+  font-family: var(--dcc-mono);
+  font-size: 11.5px;
+  color: var(--bw-muted);
+}
+.dcc-cmdcard__list {
+  padding: 8px 0;
+}
+.dcc-cmdrow {
+  display: flex;
+  gap: 16px;
+  padding: 7px 16px;
+  flex-wrap: wrap;
+}
+.dcc-cmdrow + .dcc-cmdrow {
+  border-top: 1px solid color-mix(in oklab, var(--bw-line) 60%, transparent);
+}
+.dcc-cmdrow code {
+  font-size: 13px;
+  color: var(--bw-fg);
+  background: none;
+  min-width: 180px;
+}
+.dcc-cmdrow code .p {
+  color: var(--dcc-ink);
+}
+.dcc-cmdrow .cmt {
+  font-family: var(--dcc-mono);
+  font-size: 12.5px;
+  color: var(--bw-muted);
+  flex: 1;
+}
+
+/* ---- STEPS ---- */
+.dcc-steps {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+.dcc-step {
+  background: var(--bw-surface);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.dcc-step + .dcc-step {
+  border-left: 1px solid var(--bw-line);
+}
+.dcc-step__body {
+  padding: 24px 24px 18px;
+  flex: 1;
+}
+.dcc-step__num {
+  font-family: var(--dcc-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dcc-ink);
+  margin-bottom: 12px;
+}
+.dcc-step h3 {
+  margin: 0 0 7px;
+  font-family: var(--dcc-sans);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--bw-fg);
+}
+.dcc-step p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--bw-muted);
+}
+.dcc-step p code {
+  font-size: 0.9em;
+  color: var(--bw-fg);
+}
+.dcc-step__alt {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+  font-size: 14px;
+  color: var(--dcc-ink);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.dcc-step__alt svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.15s ease;
+}
+.dcc-step__alt:hover svg {
+  transform: translateX(3px);
+}
+.dcc-cmd {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 16px;
+  border-top: 1px solid var(--bw-line);
+  background: var(--dcc-code);
+}
+.dcc-cmd code {
+  flex: 1;
+  font-size: 12px;
+  color: var(--bw-fg);
+  background: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 28px;
+}
+
+/* Copy buttons reuse zensical's .md-code__nav / .md-code__button styling; the
+   row just provides the positioning context. The wiring is the inline script in
+   overrides/home.html (scoped to .dcc-copy / .dcc-cmd so it never touches
+   zensical's own code-block copy buttons). */
+.dcc-copy .md-code__nav,
+.dcc-cmd .md-code__nav {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+}
+
+/* ---- keyframes ---- */
+@keyframes dcc-blink {
+  50% {
+    opacity: 0;
+  }
+}
+@keyframes dcc-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@keyframes dcc-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dcc-marquee__track,
+  .dcc-dot,
+  .dcc-blink {
+    animation: none !important;
+  }
+}
+
+/* ---- responsive ---- */
+@media (max-width: 860px) {
+  .dcc-grid-3 {
+    grid-template-columns: 1fr;
+  }
+  .dcc-grid-3 > * {
+    border-left: none;
+    border-top: 1px solid var(--bw-line);
+  }
+  .dcc-grid-3 > :first-child {
+    border-top: none;
+  }
+  .dcc-steps {
+    grid-template-columns: 1fr;
+  }
+  .dcc-step + .dcc-step {
+    border-left: none;
+    border-top: 1px solid var(--bw-line);
+  }
+}
+@media (max-width: 720px) {
+  .dcc-panes {
+    grid-template-columns: 1fr;
+  }
+  .dcc-pane + .dcc-pane {
+    border-left: none;
+    border-top: 1px solid var(--bw-line);
+  }
+  .dcc-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .dcc-stat:nth-child(3) {
+    border-left: none;
+  }
+  .dcc-stat:nth-child(n + 3) {
+    border-top: 1px solid var(--bw-line);
+  }
+}
+@media (max-width: 600px) {
+  .dcc-hero__inner,
+  .dcc-shot,
+  .dcc-stats-wrap,
+  .dcc-section {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+
+/* ============================================================
+   HOME PAGE chrome — drop the empty article that home.html leaves
+   behind (the landing lives in the `tabs` block above it).
+   `body:has(.dcc-hero)` matches only the landing, so real doc pages
+   (404, …) keep their container.
+   ============================================================ */
+body:has(.dcc-hero) .md-content {
+  display: none;
+}
+body:has(.dcc-hero) .md-main__inner {
+  margin-top: 0;
+}
+body:has(.dcc-hero) .md-main {
+  background: var(--bw-bg);
+}

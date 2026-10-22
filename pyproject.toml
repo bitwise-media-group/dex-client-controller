@@ -1,0 +1,18 @@
+# Copyright 2026 BitWise Media Group Ltd
+# SPDX-License-Identifier: MIT
+#
+# Python is only here for the documentation site: uv provisions zensical (the
+# static-site generator) for the archetype's sync/docs-build/serve tasks.
+
+[project]
+name = "dex-client-controller"
+version = "0.0.0" # x-release-please-version
+description = "Self-service SSO for dex: DexClient and DexConnector custom resources reconciled through dex's gRPC API."
+readme = "README.md"
+requires-python = ">=3.13"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "BitWise Media Group Ltd", email = "oss@bitwisemedia.uk" }]
+dependencies = [
+  "zensical>=0.0.46",
+]

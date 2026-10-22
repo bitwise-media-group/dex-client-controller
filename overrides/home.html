@@ -1,0 +1,406 @@
+<!--
+ Copyright 2026 BitWise Media Group Ltd
+ SPDX-License-Identifier: MIT
+-->
+
+{#- overrides/home.html — custom landing for the dex-client-controller docs, on the flux-containers / flux-manifests
+landing's layout (hero, terminal showcase, marquee, connected feature grid, cards, steps) in the parent BitWise Media
+Group palette via the scheme-scoped --bw-* tokens in docs/stylesheets/extra.css. Injected full-bleed between the header
+and the page body via the `tabs` block; the article `content` block is emptied, index.md sets `hide: [navigation, toc]`,
+and extra.css drops the empty .md-content on this page.
+
+The resource count and cards are read from the "Resources" nav section (every entry but its overview), each card's blurb
+from that page's `description` front matter — so a new kind needs only its page and its line in zensical.toml. -#}
+{% extends "main.html" %}
+{% block tabs %}
+{{ super() }}
+{%- set dcc_section = nav.items | selectattr("title", "equalto", "Resources") | first -%}
+{%- set dcc_kinds = dcc_section.children | rejectattr("title", "equalto", "Overview") | list %}
+<div class="dcc">
+    <!-- HERO -->
+    <header class="dcc-hero">
+        <div class="dcc-hero__grid"></div>
+        <div class="dcc-hero__glow"></div>
+        <img class="dcc-hero__mark" src="{{ 'assets/logo-mark.svg' | url }}" alt="" aria-hidden="true" />
+        <div class="dcc-hero__inner">
+            <div class="dcc-kicker"><span class="dcc-dot"></span>// Self-service SSO for dex</div>
+            <h1 class="dcc-title">Declare a client.<br /><em>dex never restarts.</em></h1>
+            <p class="dcc-lede">
+                Application teams declare the OAuth2 clients and identity providers they need as namespaced
+                <code>DexClient</code> and <code>DexConnector</code> resources. The controller registers them in a
+                running dex through its gRPC API, over mutual TLS — secrets stay in Kubernetes Secrets, and dex's config
+                file is never touched.
+            </p>
+            <div class="dcc-term">
+                <div class="dcc-term__bar">
+                    <span class="dcc-dots"><i></i><i></i><i></i></span><span>zsh — dex-client-controller</span>
+                </div>
+                <div class="dcc-copy">
+                    <span class="dcc-p">$</span>
+                    <code>kubectl apply -f grafana-dexclient.yaml</code>
+                    <div class="md-code__nav">
+                        <button class="md-code__button" type="button" data-md-type="copy" title="Copy to clipboard"
+                            aria-label="Copy to clipboard"></button>
+                    </div>
+                </div>
+                <div class="dcc-copy">
+                    <span class="dcc-p">$</span>
+                    <code>kubectl get dex -A</code>
+                    <div class="md-code__nav">
+                        <button class="md-code__button" type="button" data-md-type="copy" title="Copy to clipboard"
+                            aria-label="Copy to clipboard"></button>
+                    </div>
+                </div>
+                <div class="dcc-copy">
+                    <span class="dcc-p">$</span>
+                    <code>kubectl get secret grafana-dex-client -n monitoring</code>
+                    <div class="md-code__nav">
+                        <button class="md-code__button" type="button" data-md-type="copy" title="Copy to clipboard"
+                            aria-label="Copy to clipboard"></button>
+                    </div>
+                </div>
+            </div>
+            <div class="dcc-cta">
+                <a class="dcc-btn dcc-btn--primary" href="{{ 'getting-started/' | url }}">
+                    Get started
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
+                    </svg>
+                </a>
+                <a class="dcc-btn dcc-btn--secondary" href="{{ 'concepts/how-it-works/' | url }}">How it works</a>
+                <a class="dcc-btn dcc-btn--ghost" href="{{ config.repo_url }}">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path
+                            d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 4 5 4 5 4c-.3 1.15-.3 2.35 0 3.5A5.4 5.4 0 0 0 4 11c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+                        <path d="M9 18c-4.51 2-5-2-7-2" />
+                    </svg>
+                    Browse the code
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- TERMINAL SHOWCASE -->
+    <section class="dcc-shot">
+        <div class="dcc-shot__frame">
+            <div class="dcc-shot__bar">
+                <span class="dcc-dots"><i></i><i></i><i></i></span>
+                <span class="dcc-title-sm">dex-client-controller · kubectl apply</span>
+                <span class="dcc-live">● live</span>
+            </div>
+            <div class="dcc-panes">
+                <div class="dcc-pane">
+                    <div class="dcc-pane__head"><b>1</b><span>monitoring/grafana-dexclient.yaml</span></div>
+                    <div class="dcc-pane__body dcc-toml">
+                        <div><span class="k">apiVersion:</span> <span class="v">dex.bitwisemedia.uk/v1alpha1</span></div>
+                        <div><span class="k">kind:</span> <span class="s">DexClient</span></div>
+                        <div><span class="k">metadata:</span></div>
+                        <div>&nbsp;&nbsp;<span class="k">name:</span> <span class="v">grafana</span></div>
+                        <div>&nbsp;&nbsp;<span class="k">namespace:</span> <span class="v">monitoring</span></div>
+                        <div><span class="k">spec:</span></div>
+                        <div>&nbsp;&nbsp;<span class="k">name:</span> <span class="v">Grafana</span></div>
+                        <div>&nbsp;&nbsp;<span class="k">redirectURIs:</span></div>
+                        <div>&nbsp;&nbsp;&nbsp;&nbsp;- <span class="v">https://grafana.example.com/login/generic_oauth</span></div>
+                        <div class="dcc-pane__sep"><span class="c"># no secretRef: the controller generates one</span></div>
+                    </div>
+                </div>
+                <div class="dcc-pane">
+                    <div class="dcc-pane__head"><b>2</b><span>reconcile</span></div>
+                    <div class="dcc-pane__body">
+                        <div class="dcc-dim">$ kubectl get dex -n monitoring <span class="dcc-blink"></span></div>
+                        <div class="dcc-run"><span class="t">id</span><span class="d">monitoring-grafana · &lt;namespace&gt;-&lt;name&gt;</span><span class="ok">✓</span></div>
+                        <div class="dcc-run"><span class="t">secret</span><span class="d">32 random bytes → grafana-dex-client</span><span class="ok">✓</span></div>
+                        <div class="dcc-run"><span class="t">dex</span><span class="d">CreateClient over mTLS gRPC</span><span class="ok">✓</span></div>
+                        <div class="dcc-run"><span class="t">watch</span><span class="d">Secret rotation re-syncs the client</span><span class="ok">✓</span></div>
+                        <div class="dcc-run"><span class="t">status</span><span class="d">Ready=True · Synced</span><span class="ok">✓</span></div>
+                        <div class="dcc-pane__sep dcc-ok">→ Grafana mounts clientID, clientSecret and issuer</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="dcc-shot__cap">
+            The <b>resource</b> lives in the team's namespace and GitOps repository; the <b>controller</b> turns it into
+            a dex client over mTLS and hands the credentials back in a Secret the team already owns.
+        </p>
+    </section>
+
+    <!-- MARQUEE -->
+    {#- Connector types a DexConnector can configure (any type dex was built with). Rendered twice so the
+    translateX(-50%) scroll loops seamlessly; aria-hidden because it is decorative and would otherwise be announced
+    twice. -#}
+    {%- set dcc_connectors = ["oidc", "github", "gitlab", "google", "microsoft", "ldap", "saml", "oauth", "openshift",
+    "bitbucket-cloud", "gitea", "keystone", "linkedin", "authproxy", "atlassian-crowd"] %}
+    <div class="dcc-marquee" aria-hidden="true">
+        <div class="dcc-marquee__track">
+            {% for i in [1, 2] %}{% for c in dcc_connectors %}<span>{{ c }}</span>{% endfor %}{% endfor %}
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <section class="dcc-stats-wrap">
+        <div class="dcc-stats">
+            <div class="dcc-stat"><b>{{ dcc_kinds | length }}</b><small>namespaced resources</small></div>
+            <div class="dcc-stat"><b>1</b><small>dex per controller, over mTLS</small></div>
+            <div class="dcc-stat"><b class="dcc-ink">0</b><small>dex restarts</small></div>
+            <div class="dcc-stat"><b class="dcc-ink">0</b><small>secrets in ConfigMaps</small></div>
+        </div>
+    </section>
+
+    <!-- WHAT IT DOES -->
+    <section class="dcc-section">
+        <h2 class="dcc-eyebrow">// WHY NOT REWRITE THE CONFIG FILE</h2>
+        <p class="dcc-lead">dex already ships an API for this. The controller drives it from outside, so dex stays
+            untouched.</p>
+        <div class="dcc-conn dcc-grid-3">
+            <div class="dcc-feat">
+                <div class="dcc-glyph" style="background: var(--bw-orange)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                        <path d="M3 3v5h5" />
+                        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+                        <path d="M16 16h5v5" />
+                    </svg>
+                </div>
+                <h3>No restarts</h3>
+                <p>
+                    Clients and connectors are created and updated live through dex's gRPC API. A changed connector
+                    bumps its resource version, and dex rebuilds it on next use.
+                </p>
+            </div>
+            <div class="dcc-feat">
+                <div class="dcc-glyph" style="background: var(--bw-orange-2)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                </div>
+                <h3>Secrets stay Secrets</h3>
+                <p>
+                    Reference an existing Secret with <code>secretRef</code>, or let the controller generate one it
+                    owns. Secret contents are never cached, and rotating one rotates the client in dex.
+                </p>
+            </div>
+            <div class="dcc-feat">
+                <div class="dcc-glyph" style="background: var(--bw-amber)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4 9h16" />
+                        <path d="M4 15h16" />
+                        <path d="M10 3 8 21" />
+                        <path d="m16 3-2 18" />
+                    </svg>
+                </div>
+                <h3>GitOps-friendly</h3>
+                <p>
+                    Each team's resources live in its own namespace and repository. IDs default to
+                    <code>&lt;namespace&gt;-&lt;name&gt;</code>, so namespaces cannot collide.
+                </p>
+            </div>
+            <div class="dcc-feat">
+                <div class="dcc-glyph" style="background: var(--bw-orange)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="m7.5 4.27 9 5.15" />
+                        <path
+                            d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
+                        <path d="m3.3 7 8.7 5 8.7-5" />
+                        <path d="M12 22V12" />
+                    </svg>
+                </div>
+                <h3>Additive, any backend</h3>
+                <p>
+                    Works on every dex storage backend. <code>staticClients</code> and <code>staticConnectors</code>
+                    keep working: a resource claiming a static ID reports <code>ReadOnly</code> and never touches it.
+                </p>
+            </div>
+            <div class="dcc-feat">
+                <div class="dcc-glyph" style="background: var(--bw-orange-2)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="12" cy="8" r="6" />
+                        <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+                    </svg>
+                </div>
+                <h3>Oldest claim wins</h3>
+                <p>
+                    When two resources claim one ID, the oldest owns it and the rest report <code>Conflict</code>.
+                    Delete the owner and the next claimant takes the dex entry over in place.
+                </p>
+            </div>
+            <div class="dcc-feat">
+                <div class="dcc-glyph" style="background: var(--bw-green)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path
+                            d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+                        <path d="m9 12 2 2 4-4" />
+                    </svg>
+                </div>
+                <h3>Drift repaired</h3>
+                <p>
+                    dex has no change events, so every resource is re-reconciled on <code>--resync-period</code>. A
+                    dex on memory storage that restarts is repopulated within one period.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- RESOURCES -->
+    <section class="dcc-section">
+        <h2 class="dcc-eyebrow">// RESOURCES</h2>
+        <p class="dcc-lead">Two kinds in <code>dex.bitwisemedia.uk/v1alpha1</code>, both namespaced, both in category
+            <code>dex</code>.</p>
+        <div class="dcc-card-grid">
+            {% for c in dcc_kinds %}
+            <a class="dcc-card" href="{{ c.url | url }}">
+                <span class="dcc-card__name">{{ c.title }}</span>
+                <p>{{ c.meta.description if c.meta and c.meta.description else "" }}</p>
+                <code>kind: {{ c.title }}</code>
+            </a>
+            {% endfor %}
+            <a class="dcc-card dcc-card--common" href="{{ 'resources/' | url }}">
+                <span class="dcc-card__name">status &amp; deletion</span>
+                <p>The Ready condition and its reasons, conflicts, and what happens in dex when a resource is deleted.</p>
+                <code>resources/</code>
+            </a>
+        </div>
+    </section>
+
+    <!-- THE TASKS -->
+    <section class="dcc-section">
+        <h2 class="dcc-eyebrow">// THIN TASKS OVER THE TOOLCHAIN</h2>
+        <p class="dcc-lead--sm">Every verb is a mise task; the Makefile only forwards — <code>make &lt;task&gt;</code> ==
+            <code>mise run &lt;task&gt;</code>.</p>
+        <div class="dcc-cmdcard">
+            <div class="dcc-cmdcard__bar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="4 17 10 11 4 5" />
+                    <line x1="12" x2="20" y1="19" y2="19" />
+                </svg>
+                <span>make help</span>
+            </div>
+            <div class="dcc-cmdcard__list">
+                <div class="dcc-cmdrow">
+                    <code><span class="p">$</span> make ci</code><span class="cmt"># lint, codegen drift, unit + envtest, build</span>
+                </div>
+                <div class="dcc-cmdrow">
+                    <code><span class="p">$</span> make e2e</code><span class="cmt"># real dex + real controller against envtest</span>
+                </div>
+                <div class="dcc-cmdrow">
+                    <code><span class="p">$</span> make codegen</code><span class="cmt"># deepcopy + CRDs after editing api/v1alpha1</span>
+                </div>
+                <div class="dcc-cmdrow">
+                    <code><span class="p">$</span> make snapshot</code><span class="cmt"># local release: binaries, SBOMs, image</span>
+                </div>
+                <div class="dcc-cmdrow">
+                    <code><span class="p">$</span> make serve</code><span class="cmt"># preview this site on localhost:8005</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- THREE STEPS -->
+    <section class="dcc-section dcc-section--last">
+        <h2 class="dcc-eyebrow">// FROM ZERO TO SSO</h2>
+        <div class="dcc-conn dcc-steps">
+            <div class="dcc-step">
+                <div class="dcc-step__body">
+                    <div class="dcc-step__num">01</div>
+                    <h3>Open dex's API</h3>
+                    <p>Enable dex's gRPC API with <code>tlsClientCA</code> and issue the controller a client
+                        certificate; set <code>DEX_API_CONNECTORS_CRUD=true</code> to manage connectors too.</p>
+                    <a class="dcc-step__alt" href="{{ 'getting-started/install/' | url }}">Install guide
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M5 12h14" />
+                            <path d="m12 5 7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+                <div class="dcc-cmd">
+                    <span class="dcc-p">$</span>
+                    <code>kubectl apply -f dex-client-controller-dex-tls.yaml</code>
+                    <div class="md-code__nav">
+                        <button class="md-code__button" type="button" data-md-type="copy" title="Copy to clipboard"
+                            aria-label="Copy to clipboard"></button>
+                    </div>
+                </div>
+            </div>
+            <div class="dcc-step">
+                <div class="dcc-step__body">
+                    <div class="dcc-step__num">02</div>
+                    <h3>Install the chart</h3>
+                    <p>Point the controller at dex's gRPC address and a Secret holding its client certificate.</p>
+                    <a class="dcc-step__alt" href="{{ 'reference/helm-values/' | url }}">Helm values
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M5 12h14" />
+                            <path d="m12 5 7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+                <div class="dcc-cmd">
+                    <span class="dcc-p">$</span>
+                    <code>helm install dex-client-controller oci://ghcr.io/bitwise-media-group/dex-client-controller/charts/dex-client-controller --namespace dex-client-controller --create-namespace --set dex.address=dex.dex.svc.cluster.local:5557</code>
+                    <div class="md-code__nav">
+                        <button class="md-code__button" type="button" data-md-type="copy" title="Copy to clipboard"
+                            aria-label="Copy to clipboard"></button>
+                    </div>
+                </div>
+            </div>
+            <div class="dcc-step">
+                <div class="dcc-step__body">
+                    <div class="dcc-step__num">03</div>
+                    <h3>Declare a client</h3>
+                    <p>Apply a <code>DexClient</code> in your namespace and mount the Secret it hands back.</p>
+                    <a class="dcc-step__alt" href="{{ 'resources/dexclient/' | url }}">DexClient
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M5 12h14" />
+                            <path d="m12 5 7 7-7 7" />
+                        </svg>
+                    </a>
+                </div>
+                <div class="dcc-cmd">
+                    <span class="dcc-p">$</span>
+                    <code>kubectl get dexclients -n monitoring</code>
+                    <div class="md-code__nav">
+                        <button class="md-code__button" type="button" data-md-type="copy" title="Copy to clipboard"
+                            aria-label="Copy to clipboard"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<script>
+    // Wire the landing-page copy buttons. Delegated on document so it survives instant navigation; scoped to
+    // .dcc-copy / .dcc-cmd so it never touches zensical's own code-block copy buttons. Strips the leading "$ " prompt,
+    // then reuses zensical's own snackbar element so the feedback matches the native code-block copy button exactly.
+    document.addEventListener("click", function (e) {
+        var btn = e.target.closest(".dcc-copy .md-code__button, .dcc-cmd .md-code__button");
+        if (!btn) return;
+        var row = btn.closest(".dcc-copy, .dcc-cmd");
+        var code = row && row.querySelector("code");
+        if (!code) return;
+        navigator.clipboard.writeText(code.textContent.replace(/^\s*\$\s+/, "")).then(function () {
+            btn.focus();
+            var dialog = document.querySelector("[data-md-component=dialog]");
+            if (!dialog) return;
+            (dialog.querySelector(".md-dialog__inner") || dialog).textContent = "Copied to clipboard";
+            dialog.classList.add("md-dialog--active");
+            window.clearTimeout(dialog.dccResetTimer);
+            dialog.dccResetTimer = window.setTimeout(function () {
+                dialog.classList.remove("md-dialog--active");
+            }, 2000);
+        });
+    });
+</script>
+{% endblock %}
+{% block content %}{% endblock %}
