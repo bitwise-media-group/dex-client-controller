@@ -1,0 +1,89 @@
+# Copyright 2026 BitWise Media Group Ltd
+# SPDX-License-Identifier: MIT
+
+# Release pipeline — thin caller for the org's reusable release workflow.
+# release-please watches main and keeps a release PR current from the Conventional
+# Commit history; when that PR merges the workflow cuts the draft GitHub release +
+# vX.Y.Z tag and GoReleaser adopts it — linux binary archives + checksums + SBOMs +
+# keyless cosign signatures, and a SLSA build-provenance attestation over
+# everything in checksums.txt. The container image is published by goreleaser
+# (dockers_v2 over the repo-root Dockerfile) to ghcr, and its digests
+# (dist/digests.txt) get the same build-provenance attestation as the archives.
+# The docs job publishes the zensical site (keyed off zensical.toml).
+# When a release was actually cut, the helm job then packages, cosign-signs,
+# and pushes the chart to ghcr (helm.yaml, called at the release tag) — it runs
+# here rather than on `release: published` because goreleaser publishes the
+# release with GITHUB_TOKEN, and GITHUB_TOKEN-driven events start no workflows.
+#
+# app-client-id/app-private-key author the release-please PR as the "FF Merge" App
+# instead of the GITHUB_TOKEN. A GITHUB_TOKEN-authored push fires no workflow_run,
+# so a release PR opened that way never triggers the auto-merge in merge.yaml;
+# authoring it as the App makes the release PR auto-merge once approved and green,
+# like any other.
+#
+# The reusable workflow is pinned to a full commit SHA (tag in the comment) so a
+# moved tag can never change what runs; Renovate keeps the pin fresh.
+name: Release
+
+on:
+    push:
+        branches: [main]
+    # allow cutting a release manually from the Actions tab
+    workflow_dispatch:
+
+permissions: {}
+
+jobs:
+    release:
+        uses: bitwise-media-group/github-workflows/.github/workflows/release.yaml@8b34c6fe87a61fc2f800876e9268bc1da8635e88 # v8.0.0
+        # ceiling for the reusable workflow's release-please + goreleaser + docs jobs.
+        # GitHub resolves a reusable workflow's permissions as the union of every job
+        # and ignores `if:`, so the caller must grant the goreleaser job's id-token /
+        # attestations / artifact-metadata even on a release that skips them.
+        permissions:
+            # create the release/tag and upload assets
+            contents: write
+            # release-please creates pr labels via the issues api
+            issues: write
+            # release-please opens the release pull request
+            pull-requests: write
+            # cosign keyless signing (goreleaser)
+            id-token: write
+            # push the dockers_v2 container image to ghcr
+            packages: write
+            # github build-provenance attestation
+            attestations: write
+            # artifact storage record for the attestation
+            artifact-metadata: write
+            # the docs job deploys the zensical site to GitHub Pages
+            pages: write
+        with:
+            # author the release PR as the FF Merge App so it can auto-merge (a
+            # GITHUB_TOKEN-authored push fires no workflow_run to trigger the merge)
+            app-client-id: ${{ vars.FF_MERGE_CLIENT_ID }}
+        secrets:
+            # private key for the App that authors the release PR (same App as /merge)
+            app-private-key: ${{ secrets.FF_MERGE_PRIVATE_KEY }}
+
+    # Package, sign, and push the helm chart to ghcr — only when this run cut a
+    # release (release_created is an empty string otherwise). Runs after the
+    # whole reusable workflow, so the container image the chart references is
+    # already on ghcr; the checkout inside helm.yaml is at the release tag, whose
+    # Chart.yaml release-please has already stamped.
+    helm:
+        needs: release
+        if: needs.release.outputs.release_created
+        uses: ./.github/workflows/helm.yaml # zizmor: ignore[self-repository] -- actionlint 1.7.12 (also in lint) rejects the $/ form
+        # ceiling for helm.yaml's publish job
+        permissions:
+            contents: read
+            # helm push to ghcr (also pushes the cosign signature artifact)
+            packages: write
+            # keyless signing: the cosign chart signature and the provenance attestation
+            id-token: write
+            # github build-provenance attestation
+            attestations: write
+            # artifact storage record for the attestation
+            artifact-metadata: write
+        with:
+            ref: ${{ needs.release.outputs.tag_name }}

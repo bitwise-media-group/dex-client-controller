@@ -1,0 +1,113 @@
+# Copyright 2026 BitWise Media Group Ltd
+# SPDX-License-Identifier: MIT
+
+# Helm chart publishing (helm/dex-client-controller), called from the release
+# pipeline (release.yaml) once the reusable release workflow has cut vX.Y.Z
+# and goreleaser has pushed the container image that version of the chart
+# references to ghcr. A `release: published` trigger would never fire here:
+# goreleaser publishes the release with the workflow's GITHUB_TOKEN, and
+# GITHUB_TOKEN-driven events start no workflows (GitHub's recursion guard) —
+# so release.yaml calls this workflow directly, gated on the release_created
+# output, passing the release tag as `ref`. No --version/--app-version
+# overrides are needed: release-please stamps Chart.yaml in the release PR
+# (extra-files in release-please-config.json), so the tagged commit already
+# carries the right version — the checkout below is at that tag when called
+# from the release pipeline, and at the chosen ref for a manual dispatch.
+#
+# The pushed chart gets a keyless cosign signature and the same GitHub
+# build-provenance attestation as the binaries and images. Verify with:
+#   gh attestation verify --owner bitwise-media-group \
+#     oci://ghcr.io/bitwise-media-group/dex-client-controller/charts/dex-client-controller:X.Y.Z
+#   cosign verify ghcr.io/bitwise-media-group/dex-client-controller/charts/dex-client-controller:X.Y.Z \
+#     --certificate-oidc-issuer=https://token.actions.githubusercontent.com \
+#     --certificate-identity-regexp='^https://github.com/bitwise-media-group/dex-client-controller/'
+#
+# Actions are pinned to full commit SHAs (tag in the comment) so a moved tag
+# can never change what runs; Renovate keeps the pins fresh.
+name: Helm Chart
+
+on:
+    workflow_call:
+        inputs:
+            ref:
+                description: >-
+                    Git ref to publish the chart from (the release tag). Empty checks out the ref the run was
+                    triggered on.
+                required: false
+                default: ""
+                type: string
+    # republish by hand (e.g. a publish failure after the release went out);
+    # pick the vX.Y.Z tag as the ref in the dispatch UI
+    workflow_dispatch:
+
+permissions: {}
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        env:
+            CHART: dex-client-controller
+        permissions:
+            contents: read
+            # helm push to ghcr (also pushes the cosign signature artifact)
+            packages: write
+            # keyless signing: the cosign chart signature and the provenance attestation
+            id-token: write
+            # github build-provenance attestation
+            attestations: write
+            # artifact storage record for the attestation
+            artifact-metadata: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  # empty ref falls through to checkout's default (the triggering ref)
+                  ref: ${{ inputs.ref }}
+                  persist-credentials: false # nothing here pushes to git; helm/docker log in with the token directly
+
+            - name: Lint
+              run: |
+                  helm lint "helm/${CHART}"
+                  helm template "${CHART}" "helm/${CHART}" >/dev/null
+
+            - name: Package and push
+              id: push
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  set -euo pipefail
+                  helm registry login ghcr.io --username "${GITHUB_ACTOR}" --password-stdin <<<"${GITHUB_TOKEN}"
+                  helm package "helm/${CHART}" --destination dist/
+                  out="$(helm push "dist/${CHART}"-*.tgz "oci://ghcr.io/${GITHUB_REPOSITORY}/charts" 2>&1)"
+                  echo "${out}"
+                  digest="$(sed -n 's/^Digest: //p' <<<"${out}")"
+                  test -n "${digest}"
+                  echo "digest=${digest}" >>"${GITHUB_OUTPUT}"
+
+            - name: Setup cosign
+              uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+
+            # Keyless signature over the chart's immutable digest, pushed to ghcr
+            # next to the chart. cosign reads registry credentials from the docker
+            # keychain, so log in with docker (the helm login above only writes
+            # helm's own registry config).
+            - name: Sign chart
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  set -euo pipefail
+                  docker login ghcr.io --username "${GITHUB_ACTOR}" --password-stdin <<<"${GITHUB_TOKEN}"
+                  # cosign v3 stores the signature as a sigstore bundle via the
+                  # OCI referrers API, matching the container images: the
+                  # platform verifies one format everywhere. The signing-config
+                  # flag only picks the v2 trust services (Fulcio + public
+                  # Rekor v1), not the storage format.
+                  cosign sign --yes --use-signing-config=false \
+                    "ghcr.io/${GITHUB_REPOSITORY}/charts/${CHART}@${{ steps.push.outputs.digest }}"
+
+            - name: Attest build provenance
+              uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+              with:
+                  subject-name: ghcr.io/${{ github.repository }}/charts/${{ env.CHART }}
+                  subject-digest: ${{ steps.push.outputs.digest }}
+                  push-to-registry: true
