@@ -1,0 +1,31 @@
+// Copyright 2026 BitWise Media Group Ltd
+// SPDX-License-Identifier: MIT
+
+// Repo layer on top of the shared org preset (renovate-config:default.json5),
+// covering what only this repo needs:
+//
+//   - github.com/dexidp/dex declares `module github.com/dexidp/dex` (no /v2), so
+//     the Go toolchain ignores its real v2.x release tags and the only "releases"
+//     the go datasource sees are the 2016 CoreOS-era v0.x tags. A master
+//     pseudo-version (v0.0.0-…) sorts below v0.6.1, so Renovate proposes that
+//     ancient tag as an "update" — a tree with no go.mod, no api/v2 and no modern
+//     cmd/dex, which breaks `go mod tidy` and the e2e build. Exclude those tags.
+//
+//   - The e2e module runs dex from the same master commit that the root module's
+//     dex/api/v2 pseudo-version points at (DESIGN.md: the last api tag predates
+//     fields we use). Group the two so they move together.
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  packageRules: [
+    {
+      matchManagers: ["gomod"],
+      matchPackageNames: ["github.com/dexidp/dex"],
+      allowedVersions: "!/^v?0\\./",
+    },
+    {
+      matchManagers: ["gomod"],
+      matchPackageNames: ["github.com/dexidp/dex", "github.com/dexidp/dex/api/v2"],
+      groupName: "dex",
+    },
+  ],
+}
