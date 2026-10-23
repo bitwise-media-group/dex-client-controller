@@ -1,6 +1,6 @@
 module github.com/bitwise-media-group/dex-client-controller
 
-go 1.27.2
+go 1.27.3
 
 require (
 	github.com/dexidp/dex/api/v2 v2.4.1-0.20261020223452-f05a5e76e80f
