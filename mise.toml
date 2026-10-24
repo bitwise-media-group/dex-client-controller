@@ -40,7 +40,7 @@ includes = [
 # its plugin dirs, never on PATH, so the postinstall links it into
 # ~/.docker/cli-plugins (or $DOCKER_CONFIG/cli-plugins).
 [tools]
-"aqua:docker/buildx" = { version = "0.38.0", postinstall = 'dir="${DOCKER_CONFIG:-$HOME/.docker}/cli-plugins" && mkdir -p "$dir" && ln -sf "$MISE_TOOL_INSTALL_PATH/docker-cli-plugin-docker-buildx" "$dir/docker-buildx"' }
+"aqua:docker/buildx" = { version = "0.38.1", postinstall = 'dir="${DOCKER_CONFIG:-$HOME/.docker}/cli-plugins" && mkdir -p "$dir" && ln -sf "$MISE_TOOL_INSTALL_PATH/docker-cli-plugin-docker-buildx" "$dir/docker-buildx"' }
 go = "1.27.3"
 "go:golang.org/x/vuln/cmd/govulncheck" = "1.8.0"
 "go:sigs.k8s.io/controller-tools/cmd/controller-gen" = "v0.23.0"
