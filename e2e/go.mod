@@ -3,7 +3,7 @@ module github.com/bitwise-media-group/dex-client-controller/e2e
 go 1.27.3
 
 require (
-	github.com/bitwise-media-group/dex-client-controller v0.0.0
+	github.com/bitwise-media-group/dex-client-controller v0.1.0
 	github.com/dexidp/dex/api/v2 v2.4.1-0.20261020223452-f05a5e76e80f
 	k8s.io/api v0.37.1
 	k8s.io/apiextensions-apiserver v0.37.1
