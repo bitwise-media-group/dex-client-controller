@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1](https://github.com/bitwise-media-group/dex-client-controller/compare/v0.1.0...v0.1.1) (2026-10-31)
+
+
+### Bug Fixes
+
+* **deps:** update bitwise-media-group/github-workflows action to v8.0.1 ([#3](https://github.com/bitwise-media-group/dex-client-controller/issues/3)) ([0db2775](https://github.com/bitwise-media-group/dex-client-controller/commit/0db277596ced0c71477f06e564b53a371ebff6bf))
+* **deps:** update module google.golang.org/grpc to v1.85.0 ([#17](https://github.com/bitwise-media-group/dex-client-controller/issues/17)) ([c3f7ada](https://github.com/bitwise-media-group/dex-client-controller/commit/c3f7adaa327ea4687b750fb0e2ca632d2d849862))
+
 ## 0.1.0 (2026-10-22)
 
 
