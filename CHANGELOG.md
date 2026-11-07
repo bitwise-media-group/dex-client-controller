@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.1](https://github.com/bitwise-media-group/dex-client-controller/compare/v0.1.0...v0.1.1) (2026-11-07)
+
+
+### Bug Fixes
+
+* **deps:** update bitwise-media-group/github-workflows action to v8.0.1 ([#3](https://github.com/bitwise-media-group/dex-client-controller/issues/3)) ([0db2775](https://github.com/bitwise-media-group/dex-client-controller/commit/0db277596ced0c71477f06e564b53a371ebff6bf))
+* **deps:** update bitwise-media-group/github-workflows action to v8.1.0 ([#22](https://github.com/bitwise-media-group/dex-client-controller/issues/22)) ([55655e5](https://github.com/bitwise-media-group/dex-client-controller/commit/55655e5c300b8cce31f10cd67735c4bc4ef1924d))
+* **deps:** update bitwise-media-group/github-workflows action to v8.1.1 ([#23](https://github.com/bitwise-media-group/dex-client-controller/issues/23)) ([d94313a](https://github.com/bitwise-media-group/dex-client-controller/commit/d94313a1b34c33bcb21533ce3f9e64129cf2daed))
+* **deps:** update kubernetes monorepo to v0.37.2 ([#20](https://github.com/bitwise-media-group/dex-client-controller/issues/20)) ([d529486](https://github.com/bitwise-media-group/dex-client-controller/commit/d529486428e3fc52fb0214aa6329fb698830acfc))
+* **deps:** update module github.com/bitwise-media-group/dex-client-controller to v0.1.0 ([#13](https://github.com/bitwise-media-group/dex-client-controller/issues/13)) ([8f79181](https://github.com/bitwise-media-group/dex-client-controller/commit/8f791816117c7288d329567a48a9423f1ccd6c10))
+* **deps:** update module google.golang.org/grpc to v1.85.0 ([#17](https://github.com/bitwise-media-group/dex-client-controller/issues/17)) ([c3f7ada](https://github.com/bitwise-media-group/dex-client-controller/commit/c3f7adaa327ea4687b750fb0e2ca632d2d849862))
+
 ## 0.1.0 (2026-10-22)
 
 
