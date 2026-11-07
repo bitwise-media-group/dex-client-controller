@@ -6,7 +6,7 @@
 
 [project]
 name = "dex-client-controller"
-version = "0.1.0" # x-release-please-version
+version = "0.1.1" # x-release-please-version
 description = "Self-service SSO for dex: DexClient and DexConnector custom resources reconciled through dex's gRPC API."
 readme = "README.md"
 requires-python = ">=3.13"
