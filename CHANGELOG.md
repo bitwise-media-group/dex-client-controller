@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/bitwise-media-group/dex-client-controller/compare/v0.1.1...v0.1.2) (2026-11-10)
+
+
+### Bug Fixes
+
+* **release:** pass mise trust through to the goreleaser sbom commands ([de90a0f](https://github.com/bitwise-media-group/dex-client-controller/commit/de90a0fc99a6fb943122ac48a6ea6cfec20c79b1))
+
 ## [0.1.1](https://github.com/bitwise-media-group/dex-client-controller/compare/v0.1.0...v0.1.1) (2026-11-09)
 
 
