@@ -1,6 +1,6 @@
 module github.com/bitwise-media-group/dex-client-controller/e2e
 
-go 1.27.3
+go 1.27.4
 
 require (
 	github.com/bitwise-media-group/dex-client-controller v0.1.0

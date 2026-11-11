@@ -8,19 +8,10 @@
 # accepted below — each of which needs a reason and a trigger for deleting
 # it again.
 #
-# Accepted:
-#   GO-2026-6809  crypto/x509 (stdlib): distrust compromised intermediate
-#                 certificates. Published 2026-10-21, fixed in go1.27.3; the
-#                 go pin (mise.toml, go.mod, the toolchain's mise.lock) is
-#                 still 1.27.2 and go1.27.3 is inside the 7-day release
-#                 cooldown. Reachable only through TLS verification of dex's
-#                 serving certificate, which chains to the operator-supplied
-#                 CA (--dex-ca-file), not the public web PKI the advisory
-#                 concerns. Delete this entry when the go pin moves to
-#                 1.27.3 or later.
+# Accepted: none.
 set -euo pipefail
 
-accepted="GO-2026-6809"
+accepted=""
 
 out="$(mktemp "${TMPDIR:-/tmp}/govulncheck.XXXXXX")"
 trap 'rm -f "$out"' EXIT
