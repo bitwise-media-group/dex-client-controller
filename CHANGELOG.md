@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.3](https://github.com/bitwise-media-group/dex-client-controller/compare/v0.1.2...v0.1.3) (2026-11-15)
+
+
+### Bug Fixes
+
+* **deps:** bump go to 1.27.4 ([74c46ec](https://github.com/bitwise-media-group/dex-client-controller/commit/74c46ec77696abc057646b04e83414fcac422276))
+* **deps:** update bitwise-media-group/github-workflows action to v8.3.0 ([#36](https://github.com/bitwise-media-group/dex-client-controller/issues/36)) ([4f5cfe0](https://github.com/bitwise-media-group/dex-client-controller/commit/4f5cfe09bca4c19975256cbaf65c1a07ec78a399))
+* **deps:** update module github.com/bitwise-media-group/dex-client-controller to v0.1.2 ([#44](https://github.com/bitwise-media-group/dex-client-controller/issues/44)) ([797733a](https://github.com/bitwise-media-group/dex-client-controller/commit/797733a1022cceb83113057d4d74c52856ba7533))
+
 ## [0.1.2](https://github.com/bitwise-media-group/dex-client-controller/compare/v0.1.1...v0.1.2) (2026-11-10)
 
 
