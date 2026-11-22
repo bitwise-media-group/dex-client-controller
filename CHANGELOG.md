@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.4](https://github.com/bitwise-media-group/dex-client-controller/compare/v0.1.3...v0.1.4) (2026-11-22)
+
+
+### Bug Fixes
+
+* **deps:** update bitwise-media-group/github-workflows action to v8.4.0 ([#49](https://github.com/bitwise-media-group/dex-client-controller/issues/49)) ([5a02410](https://github.com/bitwise-media-group/dex-client-controller/commit/5a02410392ea2f24d3979e47a52301a0163e0735))
+* **deps:** update module sigs.k8s.io/controller-runtime to v0.25.3 ([#53](https://github.com/bitwise-media-group/dex-client-controller/issues/53)) ([ae9327d](https://github.com/bitwise-media-group/dex-client-controller/commit/ae9327daa8cbb8203d945a4e77cbdbf010f5a26e))
+
 ## [0.1.3](https://github.com/bitwise-media-group/dex-client-controller/compare/v0.1.2...v0.1.3) (2026-11-15)
 
 
