@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.5](https://github.com/bitwise-media-group/dex-client-controller/compare/v0.1.4...v0.1.5) (2026-11-27)
+
+
+### Bug Fixes
+
+* **deps:** update bitwise-media-group/github-workflows action to v8.5.0 ([#61](https://github.com/bitwise-media-group/dex-client-controller/issues/61)) ([04ff73f](https://github.com/bitwise-media-group/dex-client-controller/commit/04ff73f5ddda00e1c3ad8bec95c2cd704029ddf2))
+* **deps:** update sigstore/cosign-installer action to v4.1.4 ([#63](https://github.com/bitwise-media-group/dex-client-controller/issues/63)) ([ccf37ba](https://github.com/bitwise-media-group/dex-client-controller/commit/ccf37bae5f7b96080d5fa4de3f59a35f470d1597))
+
 ## [0.1.4](https://github.com/bitwise-media-group/dex-client-controller/compare/v0.1.3...v0.1.4) (2026-11-22)
 
 
